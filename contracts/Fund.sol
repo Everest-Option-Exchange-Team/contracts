@@ -7,6 +7,7 @@ pragma solidity ^0.8.4;
  */
 contract Fund {
     mapping(address => uint256) public addressToAmountFunded;
+    uint256 public totalFunds;
     address[] public funders;
 
     /**
@@ -14,6 +15,7 @@ contract Fund {
      */
     function fund() public payable {
         addressToAmountFunded[msg.sender] += msg.value;
+        totalFunds += msg.value;
         funders.push(msg.sender);
     }
 
@@ -33,4 +35,13 @@ contract Fund {
     function getFunders() public view returns (address[] memory) {
         return funders;
     }
+
+    /**
+     * @notice Get the total amount funded to this smart contract.
+     * @return _ the amount of the total funds 
+     */
+    function getTotalFunds() public view returns (uint256) {
+        return totalFunds;
+    }
+
 }
