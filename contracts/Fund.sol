@@ -33,4 +33,15 @@ contract Fund {
     function getFunders() public view returns (address[] memory) {
         return funders;
     }
+
+    /**
+    * @notice Get value deposited by a certain address
+    * @param addr address 
+    * @return _ value deposited by address
+    * @dev how do we have to make sure only valid addresses get passed in?
+    *
+     */
+    function getAddressToAmountFunded(address addr) public view returns (uint256) {
+        return addressToAmountFunded[addr];
+    } 
 }
