@@ -14,8 +14,8 @@ async function main() {
   // await hre.run('compile');
 
   // Deploy the contract on the blockchain
-  const ContractFactory = await hre.ethers.getContractFactory("Fund");
-  const contract = await ContractFactory.deploy();
+  const contractFactory = await hre.ethers.getContractFactory("Fund");
+  const contract = await contractFactory.deploy();
   await contract.deployed();
   console.log("Fund contract deployed to:", contract.address);
 }
