@@ -25,17 +25,13 @@ module.exports = {
       url: 'https://api.avax-test.network/ext/bc/C/rpc',
       gasPrice: 225000000000,
       chainId: 43113,
-      accounts: {
-        mnemonic: process.env.FUJI_PRIVATE_KEY,
-      },
+      accounts: [process.env.FUJI_PRIVATE_KEY]
     },
     mainnet: {
       url: 'https://api.avax.network/ext/bc/C/rpc',
       gasPrice: 225000000000,
       chainId: 43114,
-      accounts: {
-        mnemonic: process.env.MAINNET_PRIVATE_KEY,
-      },
+      accounts: [process.env.MAINNET_PRIVATE_KEY]
     }
   }
 }

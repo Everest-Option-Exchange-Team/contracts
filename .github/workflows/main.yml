@@ -1,0 +1,24 @@
+# Hardhat CI workflow.
+# It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
+name: Hardhat CI
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: 📦 Use Node.js v16.14.2 (LTS)
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.14.2
+        cache: 'npm'
+    - name: 🔧 Install hardhat
+      run: npm i --save-dev hardhat
+    - name: 🪄 Set up env
+      run: cp .env.sample .env
+    - name: ⚙️ Compile
+      run: npx hardhat compile
+    - name: 🧪 Test
+      run: npx hardhat test
+    - name: 🚀 Deploy
+      run: npx hardhat run scripts/deploy.js
