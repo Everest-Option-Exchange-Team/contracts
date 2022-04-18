@@ -65,13 +65,13 @@ describe("Fund smart contract tests", () => {
             funds = await contract.getTotalFunds();
             expect(funds).to.equal(amountDeposited);
 
-            // Withdraw all the money from the fund.
-            const txn2 = await contract.withdraw(amountDeposited);
+            // Withdraw only one ether from the fund.
+            const txn2 = await contract.withdraw(utils.parseEther("1"));
             await txn2.wait();
 
             // Check that the fund is now empty.
             funds = await contract.getTotalFunds();
-            expect(funds).to.equal(0);
+            expect(funds).to.equal(utils.parseEther(".5"));
         });
     })
 
