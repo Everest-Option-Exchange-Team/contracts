@@ -1,5 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
+require("hardhat-gas-reporter");
 require("dotenv").config();
+
+const { COINMARKETCAP_API_KEY } = process.env;
 
 module.exports = {
   solidity: "0.8.4",
@@ -33,5 +36,10 @@ module.exports = {
       chainId: 43114,
       accounts: [process.env.MAINNET_PRIVATE_KEY]
     }
+  },
+  gasReporter: {
+    currency: "EUR",
+    token: "MATIC",
+    coinmarketcap: COINMARKETCAP_API_KEY,
   }
 }
