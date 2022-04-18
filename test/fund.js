@@ -65,8 +65,8 @@ describe("Fund smart contract tests", () => {
             funds = await contract.getTotalFunds();
             expect(funds).to.equal(amountDeposited);
 
-            // Withdraw money from the fund.
-            const txn2 = await contract.withdraw();
+            // Withdraw all the money from the fund.
+            const txn2 = await contract.withdraw(amountDeposited);
             await txn2.wait();
 
             // Check that the fund is now empty.
