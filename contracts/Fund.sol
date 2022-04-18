@@ -26,6 +26,7 @@ contract Fund {
      */
     function withdraw() public payable {
         payable(msg.sender).transfer(addressToAmountFunded[msg.sender]);
+        totalFunds -= addressToAmountFunded[msg.sender];
     }
 
     /**
