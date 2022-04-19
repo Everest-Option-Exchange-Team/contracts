@@ -1,8 +1,8 @@
 name: CI Workflow
 on:
   push:
-    paths:
-      - 'contracts/*.sol'
+    #paths:
+    #  - 'contracts/*.sol'
 jobs:
   # Hardhat CI workflow.
   # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
