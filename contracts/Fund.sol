@@ -39,21 +39,20 @@ contract Fund {
     }
 
     /**
-    * @notice Get value deposited by a certain address
-    * @param addr address 
-    * @return _ value deposited by address
-    * @dev how do we have to make sure only valid addresses get passed in?
-    *
+     * @notice Get the amount deposited by a user.
+     * @param _addr address
+     * @return _ amount deposited by a user
+     *
      */
-    function getAddressToAmountFunded(address addr) public view returns (uint256) {
-        return addressToAmountFunded[addr];
-    } 
+    function getAddressToAmountFunded(address _addr) public view returns (uint256) {
+        return addressToAmountFunded[_addr];
+    }
+
     /*
      * @notice Get the total amount funded to this smart contract.
-     * @return _ the amount of the total funds 
+     * @return _ the amount of the total funds
      */
     function getTotalFunds() public view returns (uint256) {
         return totalFunds;
     }
-
 }
