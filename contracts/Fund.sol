@@ -10,6 +10,9 @@ contract Fund {
     uint256 public totalFunds;
     address[] public funders;
 
+    event Deposit(address indexed addr, uint256 amount, uint256 balance);
+    event Withdraw(address indexed addr, uint256 amount, uint256 balance);
+
     /**
      * @notice Send money to the fund.
      */
@@ -17,6 +20,7 @@ contract Fund {
         addressToAmountFunded[msg.sender] += msg.value;
         totalFunds += msg.value;
         funders.push(msg.sender);
+        emit Deposit(msg.sender, msg.value, addressToAmountFunded[msg.sender]);
     }
 
     /**
@@ -29,6 +33,7 @@ contract Fund {
         addressToAmountFunded[msg.sender] -= _amount;
         totalFunds -= _amount;
         payable(msg.sender).transfer(_amount);
+        emit Withdraw(msg.sender, _amount, addressToAmountFunded[msg.sender]);
     }
 
     /**
