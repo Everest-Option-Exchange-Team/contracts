@@ -25,6 +25,7 @@ contract Fund {
      * TODO: Enable the user to withdraw only a fraction of its funding.
      */
     function withdraw() public payable {
+        totalFunds -= addressToAmountFunded[msg.sender];
         payable(msg.sender).transfer(addressToAmountFunded[msg.sender]);
     }
 
