@@ -13,7 +13,7 @@ contract Fund {
     /**
      * @notice Send money to the fund.
      */
-    function fund() public payable {
+    function fund() external payable {
         addressToAmountFunded[msg.sender] += msg.value;
         totalFunds += msg.value;
         funders.push(msg.sender);
@@ -23,7 +23,7 @@ contract Fund {
      * @notice Withdraw money from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
-    function withdraw(uint256 _amount) public payable {
+    function withdraw(uint256 _amount) external payable {
         require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
         addressToAmountFunded[msg.sender] -= _amount;
         totalFunds -= _amount;
@@ -34,7 +34,7 @@ contract Fund {
      * @notice Get the list of users who have funded the smart contract.
      * @return _ the list of funders
      */
-    function getFunders() public view returns (address[] memory) {
+    function getFunders() external view returns (address[] memory) {
         return funders;
     }
 
@@ -44,7 +44,7 @@ contract Fund {
      * @return _ amount deposited by a user
      *
      */
-    function getAddressToAmountFunded(address _addr) public view returns (uint256) {
+    function getAddressToAmountFunded(address _addr) external view returns (uint256) {
         return addressToAmountFunded[_addr];
     }
 
@@ -52,7 +52,7 @@ contract Fund {
      * @notice Get the total amount funded to this smart contract.
      * @return _ the amount of the total funds
      */
-    function getTotalFunds() public view returns (uint256) {
+    function getTotalFunds() external view returns (uint256) {
         return totalFunds;
     }
 }
