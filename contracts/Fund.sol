@@ -21,12 +21,13 @@ contract Fund {
 
     /**
      * @notice Withdraw money from the fund.
-     * It will withdraw all the money the user sent to the fund to its wallet.
-     * TODO: Enable the user to withdraw only a fraction of its funding.
+     * @param _amount the amount to withdraw from the fund.
      */
-    function withdraw() public payable {
-        totalFunds -= addressToAmountFunded[msg.sender];
-        payable(msg.sender).transfer(addressToAmountFunded[msg.sender]);
+    function withdraw(uint256 _amount) public payable {
+        require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
+        addressToAmountFunded[msg.sender] -= _amount;
+        totalFunds -= _amount;
+        payable(msg.sender).transfer(_amount);
     }
 
     /**
