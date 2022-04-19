@@ -3,7 +3,7 @@ on: push
 jobs:
   # Hardhat CI workflow.
   # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
-  # It also installs python and slither-analizer before performing static analysis on solidity files.
+  # It also installs python, slither-analizer and mythril before performing static analysis on solidity files.
   hardhat:
     runs-on: ubuntu-latest
     steps:
@@ -25,15 +25,17 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: 3.7
-    - name: 🔧 Install slither
+    - name: 🔧 Install slither and mythril
       run: |
         python -m pip install --upgrade pip
-        pip3 install slither-analyzer
+        pip3 install slither-analyzer mythril
     - name: 🔧 Install solc
       run: |
         sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
         sudo chmod +x /usr/bin/solc
     - name: 🐍 Run slither
       run: slither .
+    - name: 🛡️ Run mythril
+      run: myth analyze contracts/Fund.sol
     - name: 🚀 Deploy
       run: npx hardhat run scripts/deploy.js
