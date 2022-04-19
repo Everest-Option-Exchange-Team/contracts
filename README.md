@@ -1,5 +1,13 @@
 # Everest smart contracts
 
+## 🔗 Latest deployments
+| Network  | Contract addres |
+| ------------ | --------------------- |
+| Testnet  | [0x5081f431918Ccc62DBDfaCBc11f34B4166A27450](https://testnet.snowtrace.io/address/0x5081f431918Ccc62DBDfaCBc11f34B4166A27450) |
+| Mainnet  | Not deployed yet |
+
+**Please update this table when you deploy a new version!**
+
 ## 📦 Install dependencies
 You need *node.js*, *npm* and *npx* installed.\
 Install the project's dependencies with: `$ npm i`
