@@ -1,18 +1,19 @@
 name: CI Workflow
 on: push
 jobs:
-  
+
   # Slither CI workflow.
   # It installs python and slither-analizer before performing static analysis on solidity files.
   slither:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: 🔧 Install python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: 3.7
     - name: 🔧 Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with: 
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
@@ -25,8 +26,7 @@ jobs:
         pip3 install slither-analyzer
     - name: 🔧 Install solc
       run: >
-        sudo wget -O /usr/bin/solc
-        https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
+        sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
         sudo chmod +x /usr/bin/solc
     - name: 🐍 Run slither
       run: slither .
