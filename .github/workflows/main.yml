@@ -48,6 +48,10 @@ jobs:
       run: |
         sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
         sudo chmod +x /usr/bin/solc
+    - name: 🪄 Set up env
+      run: cp .env.sample .env
+    - name: ⚙️ Compile
+      run: npx hardhat compile
     - name: 🐍 Run slither
       run: slither .
     - name: 🛡️ Run mythril
