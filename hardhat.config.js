@@ -39,7 +39,7 @@ module.exports = {
   },
   gasReporter: {
     currency: "EUR",
-    token: "MATIC",
+    token: "AVAX",
     coinmarketcap: COINMARKETCAP_API_KEY,
   }
 }
