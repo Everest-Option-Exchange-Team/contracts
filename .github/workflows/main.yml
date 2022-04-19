@@ -1,9 +1,9 @@
-# Hardhat CI workflow.
-# It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
-name: Hardhat CI
+name: CI Workflow
 on: push
 jobs:
-  build:
+  # Hardhat CI workflow.
+  # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
+  hardhat:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -22,3 +22,37 @@ jobs:
       run: npx hardhat test
     - name: 🚀 Deploy
       run: npx hardhat run scripts/deploy.js
+  
+  # Audit CI workflow.
+  # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: 📦 Use Node.js v16.14.2 (LTS)
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.14.2
+        cache: 'npm'
+    - name: 🔧 Install hardhat
+      run: npm i --save-dev hardhat
+    - name: 🔧 Install python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.7
+    - name: 🔧 Install slither and mythril
+      run: |
+        python -m pip install --upgrade pip
+        pip3 install slither-analyzer mythril
+    - name: 🔧 Install solc
+      run: |
+        sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
+        sudo chmod +x /usr/bin/solc
+    - name: 🪄 Set up env
+      run: cp .env.sample .env
+    - name: ⚙️ Compile
+      run: npx hardhat compile
+    - name: 🐍 Run slither
+      run: slither .
+    - name: 🛡️ Run mythril
+      run: myth analyze contracts/Fund.sol
