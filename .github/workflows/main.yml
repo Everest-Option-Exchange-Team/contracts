@@ -1,5 +1,8 @@
 name: CI Workflow
-on: push
+on:
+  push:
+    paths:
+      - 'contracts/*.sol'
 jobs:
   # Hardhat CI workflow.
   # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
@@ -20,8 +23,16 @@ jobs:
       run: npx hardhat compile
     - name: 🧪 Test
       run: npx hardhat test
-    - name: 🚀 Deploy
+    - name: 🚀 Deploy to localhost
       run: npx hardhat run scripts/deploy.js
+    - name: 🚀 Deploy to Fuji testnet
+      run: |
+        export CONTRACT_ADDRESS=$(CI=true npx hardhat run scripts/deploy.js --network fuji)
+        npx hardhat verify --network fuji ${CONTRACT_ADDRESS} ${SNOWTRACE_API_KEY}
+    env:
+      FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
+      SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
+      COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
   
   # Audit CI workflow.
   # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
