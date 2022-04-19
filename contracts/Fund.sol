@@ -23,6 +23,7 @@ contract Fund {
      * @notice Withdraw money from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
+    //slither-disable-next-line naming-convention
     function withdraw(uint256 _amount) external payable {
         require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
         addressToAmountFunded[msg.sender] -= _amount;
@@ -44,6 +45,7 @@ contract Fund {
      * @return _ amount deposited by a user
      *
      */
+    //slither-disable-next-line naming-convention
     function getAddressToAmountFunded(address _addr) external view returns (uint256) {
         return addressToAmountFunded[_addr];
     }
