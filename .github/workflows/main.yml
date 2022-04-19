@@ -25,10 +25,10 @@ jobs:
       run: npx hardhat test
     - name: 🚀 Deploy to localhost
       run: npx hardhat run scripts/deploy.js
-    - name: 🚀 Deploy to Fuji testnet
+    - name: 🚀 Deploy to fuji testnet
       run: |
         export CONTRACT_ADDRESS=$(CI=true npx hardhat run scripts/deploy.js --network fuji)
-        npx hardhat verify --network fuji ${CONTRACT_ADDRESS} ${SNOWTRACE_API_KEY}
+        npx hardhat verify --network fuji ${CONTRACT_ADDRESS}
     env:
       FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
       SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
