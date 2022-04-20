@@ -10,6 +10,9 @@ contract Fund {
     uint256 public totalFunds;
     address[] public funders;
 
+    event Deposit(address indexed addr, uint256 amount, uint256 balance);
+    event Withdraw(address indexed addr, uint256 amount, uint256 balance);
+
     /**
      * @notice Send money to the fund.
      */
@@ -17,6 +20,7 @@ contract Fund {
         addressToAmountFunded[msg.sender] += msg.value;
         totalFunds += msg.value;
         funders.push(msg.sender);
+        emit Deposit(msg.sender, msg.value, addressToAmountFunded[msg.sender]);
     }
 
     /**
@@ -28,6 +32,7 @@ contract Fund {
         require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
         addressToAmountFunded[msg.sender] -= _amount;
         totalFunds -= _amount;
+        emit Withdraw(msg.sender, _amount, addressToAmountFunded[msg.sender]);
         payable(msg.sender).transfer(_amount);
     }
 
