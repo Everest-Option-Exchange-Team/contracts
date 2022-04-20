@@ -5,7 +5,15 @@ require("dotenv").config();
 const { COINMARKETCAP_API_KEY } = process.env;
 
 module.exports = {
-  solidity: "0.8.4",
+  solidity: {
+    version: "0.8.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     local: {
       url: "http://localhost:9650/ext/bc/C/rpc",
@@ -39,7 +47,7 @@ module.exports = {
   },
   gasReporter: {
     currency: "EUR",
-    token: "MATIC",
+    token: "AVAX",
     coinmarketcap: COINMARKETCAP_API_KEY,
   }
 }
