@@ -32,8 +32,8 @@ contract Fund {
         require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
         addressToAmountFunded[msg.sender] -= _amount;
         totalFunds -= _amount;
-        payable(msg.sender).transfer(_amount);
         emit Withdraw(msg.sender, _amount, addressToAmountFunded[msg.sender]);
+        payable(msg.sender).transfer(_amount);
     }
 
     /**
