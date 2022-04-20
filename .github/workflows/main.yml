@@ -30,26 +30,26 @@ jobs:
         export GREEN="\033[1;32m"
         export RED="\033[1;31m"
         export RESET="\033[0m"
-        
-        echo "$>>> Deploying contract..."
+
+        echo "> Deploying contract on fuji testnet..."
         export CONTRACT_ADDRESS=$(CI=true npx hardhat run scripts/deploy.js --network fuji)
-        if [[ -z "$CONTRACT_ADDRESS" ]] then
-          echo "${RED}>>> Error while deploying the contract${RESET}"
+        if [[ -z "$CONTRACT_ADDRESS" ]]; then
+            echo -e "${RED}> Error while deploying the contract.${RESET}"
         else
-          echo "${GREEN}>>> Contract deployed${RESET}"
+            echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
         fi
     - name: ✅ Verify contract on testnet.snowtrace.io
       run: |
         export TIMEOUT=$(date -d "+3 min")
-        echo ">>> Verifying contract..."
+        echo -e "> Verifying contract...\n"
         until npx hardhat verify --network fuji $CONTRACT_ADDRESS
         do
-          if [[ $(date) > $TIMEOUT ]] then
-            echo "${RED}\n>>> Deadline expired (3 min)${RESET}"
-            break
-          fi
-          echo "${RED}\n>>> Retrying in 10 seconds...\n${RESET}"
-          sleep 10
+            if [[ $(date) > $TIMEOUT ]]; then
+                echo -e "${RED}\n> Deadline expired (3 min)${RESET}"
+                break
+            fi
+            echo -e "${RED}\n> Retrying in 10 seconds...\n${RESET}"
+            sleep 10
         done
     env:
       FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
