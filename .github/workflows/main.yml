@@ -23,14 +23,16 @@ jobs:
       run: npx hardhat compile
     - name: 🧪 Test
       run: npx hardhat test
-    - name: 🚀 Deploy to localhost
+    - name: 🏠 Deploy to localhost
       run: npx hardhat run scripts/deploy.js
-    - name: 🚀 Deploy to fuji testnet
+    - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
+        # Define useful variables.
         export GREEN="\033[1;32m"
         export RED="\033[1;31m"
         export RESET="\033[0m"
 
+        # Deploy to fuji testnet.
         echo "> Deploying contract on fuji testnet..."
         export CONTRACT_ADDRESS=$(CI=true npx hardhat run scripts/deploy.js --network fuji)
         if [[ -z "$CONTRACT_ADDRESS" ]]; then
@@ -38,8 +40,8 @@ jobs:
         else
             echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
         fi
-    - name: ✅ Verify contract on testnet.snowtrace.io
-      run: |
+
+        # Verify contract on testnet.snowtrace.io.
         export TIMEOUT=$(date -d "+3 min")
         echo -e "> Verifying contract...\n"
         until npx hardhat verify --network fuji $CONTRACT_ADDRESS
@@ -50,7 +52,7 @@ jobs:
             fi
             echo -e "${RED}\n> Retrying in 10 seconds...\n${RESET}"
             sleep 10
-        done
+        done        
     env:
       FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
       SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
