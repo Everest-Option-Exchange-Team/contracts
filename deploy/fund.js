@@ -32,6 +32,12 @@ async function main() {
     // Verify the contract on snowtrace.
     console.log(`Verify with: $ npx hardhat verify ${contract.address} --network ${hre.network.name}`);
   }
+
+  // Deploy the ERC20Minter contract.
+  const ERC20MinterPauserContractFactory = await hre.ethers.getContractFactory("ERC20MinterPauser");
+  const ERC20MinterPauserContract = await contractFactory.deploy();
+  await ERC20MinterPauserContract.deployed();
+  console.log("ERC20MinterPauser contract deployed to:", ERC20MinterPauserContract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
