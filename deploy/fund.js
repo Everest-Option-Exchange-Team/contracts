@@ -35,7 +35,7 @@ async function main() {
 
   // Deploy the ERC20Minter contract.
   const ERC20MinterPauserContractFactory = await hre.ethers.getContractFactory("ERC20MinterPauser");
-  const ERC20MinterPauserContract = await contractFactory.deploy();
+  const ERC20MinterPauserContract = await ERC20MinterPauserContractFactory.deploy();
   await ERC20MinterPauserContract.deployed();
   console.log("ERC20MinterPauser contract deployed to:", ERC20MinterPauserContract.address);
 }
