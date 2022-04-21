@@ -42,6 +42,10 @@ contract ERC20MinterPauser is Context, AccessControlEnumerable, ERC20Burnable, E
         _setupRole(PAUSER_ROLE, _msgSender());
     }
 
+    function decimals() public view virtual override returns (uint8) {
+        return 0;
+    }
+
     /**
      * @dev Creates `amount` new tokens for `to`.
      *
