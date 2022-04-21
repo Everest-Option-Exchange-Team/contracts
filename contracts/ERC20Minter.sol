@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract OptionToken is ERC20 {
 
-    constructor(uint256 initialSupply) ERC20("Option", "Option") {
+    constructor(uint256 initialSupply, string memory tickerSymbol, string memory tokenName) ERC20(tickerSymbol, tokenName) {
         _mint(msg.sender, initialSupply);
     }
 }
