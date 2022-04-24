@@ -16,7 +16,7 @@ Install the project's dependencies with: `$ npm i`
 Copy the sample environement file: `$ cp .env.sample .env && vi .env`
 
 Then populate it with:
-- your developer wallet private keys (`MAINNET_PRIVATE_KEY` and `FUJI_PRIVATE_KEY`).
+- your developer wallet private keys (`MAINNET_PRIVATE_KEY`, `FUJI_PRIVATE_KEY` and `KOVAN_PRIVATE_KEY`).
 - your [coinmarketcap](https://coinmarketcap.com/api/) api key (`COINMARKETCAP_API_KEY`).
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
