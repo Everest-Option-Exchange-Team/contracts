@@ -21,11 +21,21 @@ Then populate it with:
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
 
+# Useful commands for smart contract 
+
 ## ⚙️ Compile contracts
-Compile the smart contracts: `$ npx hardhat compile`
+Compile the smart contracts: `$ npm run compile`
 
 ## 🧪 Test contracts
-Test the smart contracts: `$ npx hardhat test`
+Test the smart contracts: `$ npm run test`
 
 ## 🚀 Deploy contracts 
-Deploy the smart contracts to a blockchain: `$ npx hardhat run scripts/deploy.js`
+Deploy the smart contracts to local network: `$ npm run deploy-local`
+Deploy the smart contracts to fuji network: `$ npm run deploy-local`
+Deploy the smart contracts to mainnnet: `$ npm run deploy-local`
+
+## Mythril
+`$ myth analyze contracts/Fund.sol`
+
+## Slither.io
+`$ slither .`
