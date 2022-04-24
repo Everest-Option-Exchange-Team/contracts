@@ -7,15 +7,10 @@
     "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
     "verify": "npx hardhat verify",
-    "deploy-fund-local": "npx hardhat run scripts/deploy-fund.js",
-    "deploy-fund-fuji": "npx hardhat run scripts/deploy-fund.js --network fuji",
-    "deploy-fund-mainnet": "npx hardhat run scripts/deploy-fund.js --network mainnet",
-    "deploy-pc-local": "npx hardhat run scripts/deploy-price-consumer.js",
-    "deploy-pc-fuji": "npx hardhat run scripts/deploy-price-consumer.js --network fuji",
-    "deploy-pc-kovan": "npx hardhat run scripts/deploy-price-consumer.js --network kovan",
-    "deploy-pc-mainnet": "npx hardhat run scripts/deploy-price-consumer.js --network mainnet",
+    "deploy-fund": "npx hardhat run scripts/fund.js",
+    "deploy-api-consumer": "npx hardhat run scripts/api-consumer.js",
     "slither": "slither .",
-    "mythril": "myth analyze contracts/Fund.sol"
+    "mythril": "myth analyze contracts/*.sol"
   },
   "repository": {
     "type": "git",
