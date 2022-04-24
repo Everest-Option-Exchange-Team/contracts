@@ -3,7 +3,7 @@
 ## 🔗 Latest deployments
 | Network  | Contract addres |
 | ------------ | --------------------- |
-| Testnet  | [0x5081f431918Ccc62DBDfaCBc11f34B4166A27450](https://testnet.snowtrace.io/address/0x5081f431918Ccc62DBDfaCBc11f34B4166A27450) |
+| Testnet  | [0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA](https://testnet.snowtrace.io/address/0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA) |
 | Mainnet  | Not deployed yet |
 
 **Please update this table when you deploy a new version!**
