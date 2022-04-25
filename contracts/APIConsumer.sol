@@ -45,6 +45,7 @@ contract APIConsumer is ChainlinkClient {
      * @notice Request stock price from the API.
      * @dev It uses the Alpha Vantage API.
      */
+    //slither-disable-next-line naming-convention
     function requestPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(JOB_ID, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
@@ -59,8 +60,8 @@ contract APIConsumer is ChainlinkClient {
         path[1] = "05. price";
         req.addStringArray("path", path);
         req.addInt("times", 100);
-        requestId = sendChainlinkRequestTo(ORACLE_ADDRESS, req, FEE);
         requestIdToStock[requestId] = _stock;
+        return sendChainlinkRequestTo(ORACLE_ADDRESS, req, FEE);
     }
 
     /**
@@ -68,6 +69,7 @@ contract APIConsumer is ChainlinkClient {
      * @param _requestId the id of the Chainlink request.
      * @param _price the new stock price.
      */
+    //slither-disable-next-line naming-convention
     function fulfill(bytes32 _requestId, uint256 _price) external recordChainlinkFulfillment(_requestId) {
         string memory stock = requestIdToStock[_requestId];
     	stockToPrices[stock] = _price;
@@ -78,6 +80,7 @@ contract APIConsumer is ChainlinkClient {
      * @notice Update the alpha vantage api key.
      * @param _apiKey the new api key.
      */
+    //slither-disable-next-line naming-convention
     function updateApiKey(string memory _apiKey) external onlyOwner {
         apiKey = _apiKey;
         emit ApiKeyUpdated();
