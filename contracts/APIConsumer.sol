@@ -91,8 +91,7 @@ contract APIConsumer is ChainlinkClient {
      * @dev Avoid locking LINK tokens in the contract.
      */
     function withdraw() external onlyOwner {
-        uint256 balance = address(this).balance;
-        emit Withdraw(owner, balance);
-        payable(owner).transfer(balance);
+        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
+        require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
     }
 }
