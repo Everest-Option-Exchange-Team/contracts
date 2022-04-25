@@ -22,6 +22,8 @@ contract StockAPIConsumer is ChainlinkClient {
     mapping(string => uint256) public stockToPrices;
 
     event PriceUpdated(bytes32 indexed requestId, uint256 price);
+    event OracleAddressUpdated();
+    event JobIDUpdated();
     event ApiKeyUpdated();
     event Withdraw(address indexed addr, uint256 amount);
 
@@ -48,7 +50,6 @@ contract StockAPIConsumer is ChainlinkClient {
      * @notice Request stock price from the API.
      * @dev It uses the Alpha Vantage API.
      */
-    //slither-disable-next-line naming-convention
     function requestPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
@@ -72,7 +73,6 @@ contract StockAPIConsumer is ChainlinkClient {
      * @param _requestId the id of the Chainlink request.
      * @param _price the new stock price.
      */
-    //slither-disable-next-line naming-convention
     function fulfill(bytes32 _requestId, uint256 _price) external recordChainlinkFulfillment(_requestId) {
         string memory stock = requestIdToStock[_requestId];
     	stockToPrices[stock] = _price;
@@ -80,10 +80,27 @@ contract StockAPIConsumer is ChainlinkClient {
     }
 
     /**
+     * @notice Update the oracle address.
+     * @param _oracleAddress the new chainlink node operator address.
+     */
+    function updateOracleAddress(address _oracleAddress) external onlyOwner {
+        oracleAddress = _oracleAddress;
+        emit OracleAddressUpdated();
+    }
+
+    /**
+     * @notice Update the job ID.
+     * @param _jobId the new job ID.
+     */
+    function updateJobId(bytes32 _jobId) external onlyOwner {
+        jobId = _jobId;
+        emit JobIDUpdated();
+    }
+
+    /**
      * @notice Update the alpha vantage api key.
      * @param _apiKey the new api key.
      */
-    //slither-disable-next-line naming-convention
     function updateApiKey(string memory _apiKey) external onlyOwner {
         apiKey = _apiKey;
         emit ApiKeyUpdated();
