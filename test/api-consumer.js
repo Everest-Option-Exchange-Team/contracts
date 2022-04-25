@@ -1,6 +1,4 @@
 const hre = require("hardhat");
-const { utils } = require("ethers");
-const { expect } = require("chai");
 const { network } = require("hardhat");
 
 // Check if we're deploying to a local blockchain.
