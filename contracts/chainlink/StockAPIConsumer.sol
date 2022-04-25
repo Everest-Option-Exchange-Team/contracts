@@ -4,23 +4,22 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /**
- * @title Contract that consumes the Alpha Vantage stock price API.
+ * @title Generic contract which consumes the Alpha Vantage stock price API.
  * @dev https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
  * @author The Everest team.
  */
-contract APIConsumer is ChainlinkClient {
+contract StockAPIConsumer is ChainlinkClient {
     using Chainlink for Chainlink.Request;
 
-    // Kovan network parameters.
-    // https://docs.chain.link/docs/decentralized-oracles-ethereum-mainnet/
-    address constant private ORACLE_ADDRESS = 0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8;
-    bytes32 constant private JOB_ID = "d5270d1c311941d0b08bead21fea7747";
     uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
+    
+    address public owner;
+    address internal oracleAddress;
+    bytes32 internal jobId;
+    string private apiKey;
     
     mapping(bytes32 => string) private requestIdToStock;
     mapping(string => uint256) public stockToPrices;
-    address public owner;
-    string private apiKey;
 
     event PriceUpdated(bytes32 indexed requestId, uint256 price);
     event ApiKeyUpdated();
@@ -33,11 +32,15 @@ contract APIConsumer is ChainlinkClient {
 
     /**
      * @notice Initialise the contract.
+     * @param _oracleAddress the address of the chainlink node operator.
+     * @param _jobId the id of the job.
      * @param _apiKey the alpha vantage api key.
      */
-    constructor(string memory _apiKey) {
+    constructor(address _oracleAddress, bytes32 _jobId, string memory _apiKey) {
         setPublicChainlinkToken();
         owner = msg.sender;
+        oracleAddress = _oracleAddress;
+        jobId = _jobId;
         apiKey = _apiKey;
     }
     
@@ -47,7 +50,7 @@ contract APIConsumer is ChainlinkClient {
      */
     //slither-disable-next-line naming-convention
     function requestPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
-        Chainlink.Request memory req = buildChainlinkRequest(JOB_ID, address(this), this.fulfill.selector);
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
             _stock,
@@ -60,7 +63,7 @@ contract APIConsumer is ChainlinkClient {
         path[1] = "05. price";
         req.addStringArray("path", path);
         req.addInt("times", 100);
-        requestId = sendChainlinkRequestTo(ORACLE_ADDRESS, req, FEE);
+        requestId = sendChainlinkRequestTo(oracleAddress, req, FEE);
         requestIdToStock[requestId] = _stock;
     }
 
