@@ -4,6 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
+const { utils } = require("ethers");
 require("dotenv").config();
 
 const { ALPHA_VANTAGE_API_KEY } = process.env;
@@ -18,7 +19,10 @@ async function main() {
 
   // Deploy the contract on the blockchain
   const contractFactory = await hre.ethers.getContractFactory("StockAPIConsumer");
-  const contract = await contractFactory.deploy(ALPHA_VANTAGE_API_KEY);
+  // TODO: Update both values.
+  const oracleAddress = "0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8";
+  const jobId = "d5270d1c311941d0b08bead21fea7747";
+  const contract = await contractFactory.deploy(ethers.constants.AddressZero, oracleAddress, ethers.utils.hexlify(ethers.utils.toUtf8Bytes(jobId)), ALPHA_VANTAGE_API_KEY);
   await contract.deployed();
   console.log("StockAPIConsumer contract deployed to:", contract.address);
 }
