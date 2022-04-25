@@ -54,5 +54,7 @@ jobs:
       run: npx hardhat compile
     - name: 🐍 Run slither
       run: slither .
+      continue-on-error: true
     - name: 🛡️ Run mythril
-      run: myth analyze contracts/Fund.sol
+      run: myth analyze contracts/*.sol
+      continue-on-error: true
