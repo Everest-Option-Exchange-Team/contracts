@@ -19,7 +19,8 @@ contract FujiCustomStockAPIConsumer is StockAPIConsumer {
      */
     constructor(string memory _apiKey)
         StockAPIConsumer(
-            CHANGE_ME,
+            address(0),
+            msg.sender,
             "CHANGE_ME",
             _apiKey
         )

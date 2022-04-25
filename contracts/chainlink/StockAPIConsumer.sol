@@ -34,12 +34,18 @@ contract StockAPIConsumer is ChainlinkClient {
 
     /**
      * @notice Initialise the contract.
+     * @param _linkAddress the address of the link token contract.
      * @param _oracleAddress the address of the chainlink node operator.
      * @param _jobId the id of the job.
      * @param _apiKey the alpha vantage api key.
      */
-    constructor(address _oracleAddress, bytes32 _jobId, string memory _apiKey) {
-        setPublicChainlinkToken();
+    constructor(address _linkAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey) {
+        if (_linkAddress == address(0)) {
+            setPublicChainlinkToken();
+        } else {
+            setChainlinkToken(_linkAddress);
+        }
+
         owner = msg.sender;
         oracleAddress = _oracleAddress;
         jobId = _jobId;

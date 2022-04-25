@@ -19,6 +19,7 @@ contract KovanCustomStockAPIConsumer is StockAPIConsumer {
      */
     constructor(string memory _apiKey)
         StockAPIConsumer(
+            address(0),
             0xd39E4aC9b2d46D27109697651b1510063Ac50840,
             "84c8b85a04fa4b398407879fae6052e6",
             _apiKey

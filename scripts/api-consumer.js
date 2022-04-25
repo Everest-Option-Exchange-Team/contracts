@@ -17,10 +17,10 @@ async function main() {
   // await hre.run('compile');
 
   // Deploy the contract on the blockchain
-  const contractFactory = await hre.ethers.getContractFactory("APIConsumer");
+  const contractFactory = await hre.ethers.getContractFactory("StockAPIConsumer");
   const contract = await contractFactory.deploy(ALPHA_VANTAGE_API_KEY);
   await contract.deployed();
-  console.log("APIConsumer contract deployed to:", contract.address);
+  console.log("StockAPIConsumer contract deployed to:", contract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

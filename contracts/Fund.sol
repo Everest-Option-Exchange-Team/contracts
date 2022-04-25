@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.7;
 
 /**
  * @title A simple contract to which you can send money and then withdraw it.
