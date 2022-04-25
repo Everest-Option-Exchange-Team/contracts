@@ -60,8 +60,8 @@ contract APIConsumer is ChainlinkClient {
         path[1] = "05. price";
         req.addStringArray("path", path);
         req.addInt("times", 100);
+        requestId = sendChainlinkRequestTo(ORACLE_ADDRESS, req, ORACLE_PAYMENT);
         requestIdToStock[requestId] = _stock;
-        return sendChainlinkRequestTo(ORACLE_ADDRESS, req, ORACLE_PAYMENT);
     }
 
     /**
