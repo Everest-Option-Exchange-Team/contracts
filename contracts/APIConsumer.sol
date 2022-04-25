@@ -15,7 +15,7 @@ contract APIConsumer is ChainlinkClient {
     // https://docs.chain.link/docs/decentralized-oracles-ethereum-mainnet/
     address constant private ORACLE_ADDRESS = 0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8;
     bytes32 constant private JOB_ID = "d5270d1c311941d0b08bead21fea7747";
-    uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
+    uint256 constant private ORACLE_PAYMENT = 1 * LINK_DIVISIBILITY;
     
     mapping(bytes32 => string) private requestIdToStock;
     mapping(string => uint256) public stockToPrices;
@@ -61,7 +61,7 @@ contract APIConsumer is ChainlinkClient {
         req.addStringArray("path", path);
         req.addInt("times", 100);
         requestIdToStock[requestId] = _stock;
-        return sendChainlinkRequestTo(ORACLE_ADDRESS, req, FEE);
+        return sendChainlinkRequestTo(ORACLE_ADDRESS, req, ORACLE_PAYMENT);
     }
 
     /**
