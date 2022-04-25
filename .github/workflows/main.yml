@@ -56,5 +56,5 @@ jobs:
       run: slither .
       continue-on-error: true
     - name: 🛡️ Run mythril
-      run: myth analyze contracts/*.sol
+      run: myth analyze contracts/Fund.sol contracts/APIConsumer.sol
       continue-on-error: true
