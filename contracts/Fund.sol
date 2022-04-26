@@ -10,7 +10,20 @@ contract Fund {
     uint256 public totalFunds;
     address[] public funders;
 
+    /**
+     * @notice Event triggered when user deposits funds to the contract.
+     * @param addr the address of the user.
+     * @param amount the amount deposited by the user during the transaction.
+     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     */
     event Deposit(address indexed addr, uint256 amount, uint256 balance);
+
+    /**
+     * @notice Event triggered when user withdraws funds from the contract.
+     * @param addr the address of the user.
+     * @param amount the amount withdrawn by the user during the transaction.
+     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     */
     event Withdraw(address indexed addr, uint256 amount, uint256 balance);
 
     /**
