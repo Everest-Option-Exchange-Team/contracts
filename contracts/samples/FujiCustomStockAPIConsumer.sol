@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "../chainlink/StockAPIConsumer.sol";
+import "../StockAPIConsumer.sol";
 
 /**
  * @title Contract that consumes the Alpha Vantage stock price API on the Fuji testnet.
