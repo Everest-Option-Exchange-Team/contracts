@@ -46,6 +46,10 @@ contract ERC20MinterPauser is Context, AccessControlEnumerable, ERC20Burnable, E
         return 0;
     }
 
+    function getOptionToken() external {
+        mint(msg.sender, 1);
+    } 
+
     /**
      * @dev Creates `amount` new tokens for `to`.
      *
