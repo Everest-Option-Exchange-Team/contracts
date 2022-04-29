@@ -100,3 +100,4 @@ contract ERC20MinterPauser is Context, AccessControlEnumerable, ERC20Burnable, E
         super._beforeTokenTransfer(from, to, amount);
     }
 }
+
