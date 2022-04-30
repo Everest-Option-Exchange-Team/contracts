@@ -23,7 +23,7 @@ Then populate it with:
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
 
-### ⌨️ Useful commands for smart contract 
+### ⌨️ Useful commands
 
 - Compile: `$ npm run compile`
 - Test: `$ npm run test`
