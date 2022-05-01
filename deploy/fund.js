@@ -30,7 +30,7 @@ async function main() {
     console.log("Fund contract deployed to:", contract.address);
 
     // Verify the contract on snowtrace.
-    console.log(`Verify with: $ npx hardhat verify --network CHANGE_ME ${contract.address} ${process.env.SNOWTRACE_API_KEY}`);
+    console.log(`Verify with: $ npx hardhat verify ${contract.address} --network ${hre.network.name}`);
   }
 }
 
