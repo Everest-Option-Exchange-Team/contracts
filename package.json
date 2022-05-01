@@ -7,8 +7,8 @@
     "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
     "verify": "npx hardhat verify",
-    "deploy-fund": "npx hardhat run scripts/fund.js",
-    "deploy-api-consumer": "npx hardhat run scripts/api-consumer.js",
+    "deploy-fund": "npx hardhat run deploy/fund.js",
+    "deploy-api-consumer": "npx hardhat run deploy/api-consumer.js",
     "slither": "slither .",
     "mythril": "myth analyze contracts/*.sol"
   },

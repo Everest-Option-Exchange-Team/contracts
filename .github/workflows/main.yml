@@ -22,8 +22,8 @@ jobs:
       run: npx hardhat test
     - name: 🚀 Deploy
       run: |
-        npx hardhat run scripts/fund.js
-        npx hardhat run scripts/api-consumer.js
+        npx hardhat run deploy/fund.js
+        npx hardhat run deploy/api-consumer.js
   
   # Audit CI workflow.
   # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
