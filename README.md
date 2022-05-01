@@ -29,4 +29,4 @@ Compile the smart contracts: `$ npx hardhat compile`
 Test the smart contracts: `$ npx hardhat test`
 
 ## 🚀 Deploy contracts 
-Deploy the smart contracts to a blockchain: `$ npx hardhat run scripts/deploy.js`
+Deploy the smart contracts to a blockchain: `$ npx hardhat run deploy/fund.js`

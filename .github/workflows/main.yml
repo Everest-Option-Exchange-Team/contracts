@@ -26,7 +26,7 @@ jobs:
     - name: 🧪 Test
       run: npx hardhat test
     - name: 🏠 Deploy to localhost
-      run: npx hardhat run scripts/deploy.js
+      run: npx hardhat run deploy/fund.js
     - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
         # Define useful variables.
@@ -36,7 +36,7 @@ jobs:
 
         # Deploy to fuji testnet.
         echo "> Deploying contract on fuji testnet..."
-        export CONTRACT_ADDRESS=$(CI=true npx hardhat run scripts/deploy.js --network fuji)
+        export CONTRACT_ADDRESS=$(CI=true npx hardhat run deploy/fund.js --network fuji)
         if [[ -z "$CONTRACT_ADDRESS" ]]; then
             echo -e "${RED}> Error while deploying the contract.${RESET}"
             exit 1
