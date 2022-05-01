@@ -11,12 +11,29 @@ contract Fund {
     address[] public funders;
 
     /**
+     * @notice Event triggered when user deposits funds to the contract.
+     * @param addr the address of the user.
+     * @param amount the amount deposited by the user during the transaction.
+     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     */
+    event Deposit(address indexed addr, uint256 amount, uint256 balance);
+
+    /**
+     * @notice Event triggered when user withdraws funds from the contract.
+     * @param addr the address of the user.
+     * @param amount the amount withdrawn by the user during the transaction.
+     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     */
+    event Withdraw(address indexed addr, uint256 amount, uint256 balance);
+
+    /**
      * @notice Send money to the fund.
      */
     function fund() external payable {
         amountFundedByAddress[msg.sender] += msg.value;
         totalFunds += msg.value;
         funders.push(msg.sender);
+        emit Deposit(msg.sender, msg.value, addressToAmountFunded[msg.sender]);
     }
 
     /**
@@ -28,6 +45,7 @@ contract Fund {
         require(_amount <= amountFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
         amountFundedByAddress[msg.sender] -= _amount;
         totalFunds -= _amount;
+        emit Withdraw(msg.sender, _amount, addressToAmountFunded[msg.sender]);
         payable(msg.sender).transfer(_amount);
     }
 

@@ -2,17 +2,19 @@
 
 ## 🔗 Latest deployments
 | Network  | Contract addres |
-| ------------ | --------------------- |
-| Testnet  | [0x5081f431918Ccc62DBDfaCBc11f34B4166A27450](https://testnet.snowtrace.io/address/0x5081f431918Ccc62DBDfaCBc11f34B4166A27450) |
+| ---------| --------------------- |
+| Testnet  | [0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA](https://testnet.snowtrace.io/address/0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA) |
 | Mainnet  | Not deployed yet |
 
 **Please update this table when you deploy a new version!**
 
-## 📦 Install dependencies
+## 📌 Get started
+
+### 📦 Install dependencies
 You need *node.js*, *npm* and *npx* installed.\
 Install the project's dependencies with: `$ npm i`
 
-## 🔧 Setup your env
+### 🔧 Setup your env
 Copy the sample environement file: `$ cp .env.sample .env && vi .env`
 
 Then populate it with:
@@ -22,11 +24,21 @@ Then populate it with:
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
 
-## ⚙️ Compile contracts
-Compile the smart contracts: `$ npx hardhat compile`
+### ⌨️ Useful commands
 
-## 🧪 Test contracts
-Test the smart contracts: `$ npx hardhat test`
+- Compile: `$ npm run compile`
+- Test: `$ npm run test`
+- Deploy:
+    - To local network: `$ npm run deploy-local`  
+    - To fuji tesnet: `$ npm run deploy-local`  
+    - To avalanche mainnnet: `$ npm run deploy-local`  
+- Audit:
+    - With slither: `$ slither .`
+    - With mythril: `$ myth analyze contracts/Fund.sol`
 
-## 🚀 Deploy contracts 
-Deploy the smart contracts to a blockchain: `$ npx hardhat run deploy/fund.js`
+### 🪙 Fuji faucets
+
+| Tokens | Link |
+| ------ | ---- |
+| AVAX | https://faucet.avax-test.network/ |
+| LINK | https://faucets.chain.link/fuji |
