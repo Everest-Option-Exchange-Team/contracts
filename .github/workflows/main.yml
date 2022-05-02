@@ -6,10 +6,13 @@ on:
       - '.github/workflows/main.yml'
       - 'contracts/*.sol'
 
+.hardhat:
+  image: ubuntu-latest
+  
+
 jobs:
-  # Hardhat CI workflow for the Fund contract.
-  # It compiles, tests and deploys the contract on localhost and fuji network.
-  fund:
+  # Hardhat CI workflow that compiles and tests the smart contracts.
+  build-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,6 +29,22 @@ jobs:
       run: npm run compile
     - name: 🧪 Test
       run: npm run test
+
+  # Deploy the fund smart contract on localhost and fuji network.
+  deploy-fund:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: 📦 Use Node.js v16.14.2 (LTS)
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.14.2
+        cache: 'npm'
+    - name: 🔧 Install hardhat
+      run: npm i --save-dev hardhat
+    - name: 🪄 Set up env
+      run: cp .env.sample .env
     - name: 🏠 Deploy contract to localhost
       run: CI=false npm run deploy-fund
     - name: 🚀 Deploy and verify contract to fuji testnet
@@ -63,9 +82,9 @@ jobs:
       SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
       COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
   
-  # Hardhat CI workflow for the StockAPIConsumer contract.
-  # It compiles, tests and deploys the contract on localhost and fuji network.
-  api-consumer:
+  # Deploy the StockAPIConsumer smart contract on localhost and fuji network.
+  deploy-api-consumer:
+    needs: build-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -78,10 +97,6 @@ jobs:
       run: npm i --save-dev hardhat
     - name: 🪄 Set up env
       run: cp .env.sample .env
-    - name: ⚙️ Compile
-      run: npm run compile
-    - name: 🧪 Test
-      run: npm run test
     - name: 🏠 Deploy contract to localhost
       run: CI=false npm run deploy-api-consumer
     - name: 🚀 Deploy and verify contract to fuji testnet
