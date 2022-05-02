@@ -6,10 +6,6 @@ on:
       - '.github/workflows/main.yml'
       - 'contracts/*.sol'
 
-.hardhat:
-  image: ubuntu-latest
-  
-
 jobs:
   # Hardhat CI workflow that compiles and tests the smart contracts.
   build-test:
