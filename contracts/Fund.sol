@@ -6,7 +6,7 @@ pragma solidity ^0.8.7;
  * @author The Everest team.
  */
 contract Fund {
-    mapping(address => uint256) public addressToAmountFunded;
+    mapping(address => uint256) public amountFundedByAddress;
     uint256 public totalFunds;
     address[] public funders;
 
@@ -30,10 +30,10 @@ contract Fund {
      * @notice Send money to the fund.
      */
     function fund() external payable {
-        addressToAmountFunded[msg.sender] += msg.value;
+        amountFundedByAddress[msg.sender] += msg.value;
         totalFunds += msg.value;
         funders.push(msg.sender);
-        emit Deposit(msg.sender, msg.value, addressToAmountFunded[msg.sender]);
+        emit Deposit(msg.sender, msg.value, amountFundedByAddress[msg.sender]);
     }
 
     /**
@@ -41,10 +41,10 @@ contract Fund {
      * @param _amount the amount to withdraw from the fund.
      */
     function withdraw(uint256 _amount) external payable {
-        require(_amount <= addressToAmountFunded[msg.sender], "You can't withdraw more than what you deposited");
-        addressToAmountFunded[msg.sender] -= _amount;
+        require(_amount <= amountFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
+        amountFundedByAddress[msg.sender] -= _amount;
         totalFunds -= _amount;
-        emit Withdraw(msg.sender, _amount, addressToAmountFunded[msg.sender]);
+        emit Withdraw(msg.sender, _amount, amountFundedByAddress[msg.sender]);
         payable(msg.sender).transfer(_amount);
     }
 
@@ -60,10 +60,10 @@ contract Fund {
      * @notice Get the amount deposited by a user.
      * @param _addr address
      * @return _ amount deposited by a user
-     *
      */
-    function getAddressToAmountFunded(address _addr) external view returns (uint256) {
-        return addressToAmountFunded[_addr];
+    //slither-disable-next-line naming-convention
+    function getAmountFundedByAddress(address _addr) external view returns (uint256) {
+        return amountFundedByAddress[_addr];
     }
 
     /*

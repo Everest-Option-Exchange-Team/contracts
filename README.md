@@ -20,6 +20,8 @@ Copy the sample environement file: `$ cp .env.sample .env && vi .env`
 Then populate it with:
 - your developer wallet private keys (`MAINNET_PRIVATE_KEY`, `FUJI_PRIVATE_KEY` and `KOVAN_PRIVATE_KEY`).
 - your [coinmarketcap](https://coinmarketcap.com/api/) api key (`COINMARKETCAP_API_KEY`).
+- your [snowtrace.io](https://snowtrace.io/myapikey) api key (`SNOWTRACE_API_KEY`).
+- your [alpha vantage](https://www.alphavantage.co/support/#api-key) api key (`ALPHA_VANTAGE_API_KEY`).
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
 
@@ -28,12 +30,13 @@ Then populate it with:
 - Compile: `$ npm run compile`
 - Test: `$ npm run test`
 - Deploy:
-    - To local network: `$ npm run deploy-local`  
-    - To fuji tesnet: `$ npm run deploy-local`  
-    - To avalanche mainnnet: `$ npm run deploy-local`  
+    - Fund contract: `$ npm run deploy-fund --network <network>`
+    - StockAPIConsumer contract: `$ npm run deploy-api-consumer --network <network>`
+    You can either deploy on kovan, fuji
+    Don't specify the network if you want to deploy on localhost.
 - Audit:
-    - With slither: `$ slither .`
-    - With mythril: `$ myth analyze contracts/Fund.sol`
+    - With slither: `$ npm run slither`
+    - With mythril: `$ npm run mythril`
 
 ### 🪙 Fuji faucets
 

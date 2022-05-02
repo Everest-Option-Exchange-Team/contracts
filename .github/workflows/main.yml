@@ -1,5 +1,10 @@
 name: CI Workflow
-on: push
+
+on:
+  push:
+    paths:
+      - 'contracts/*.sol'
+
 jobs:
   # Hardhat CI workflow.
   # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
@@ -17,13 +22,45 @@ jobs:
     - name: 🪄 Set up env
       run: cp .env.sample .env
     - name: ⚙️ Compile
-      run: npx hardhat compile
+      run: npm run compile
     - name: 🧪 Test
-      run: npx hardhat test
-    - name: 🚀 Deploy to localhost
+      run: npm run test
+    - name: 🏠 Deploy to localhost
+      run: npm run deploy-fund
+    - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
-        npx hardhat run deploy/fund.js
-        npx hardhat run deploy/api-consumer.js
+        # Define useful variables.
+        export GREEN="\033[1;32m"
+        export RED="\033[1;31m"
+        export RESET="\033[0m"
+
+        # Deploy to fuji testnet.
+        echo "> Deploying contract on fuji testnet..."
+        export CONTRACT_ADDRESS=$(CI=true npm run deploy-fund --network fuji)
+        if [[ -z "$CONTRACT_ADDRESS" ]]; then
+            echo -e "${RED}> Error while deploying the contract.${RESET}"
+            exit 1
+        else
+            echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
+        fi
+
+        # Verify contract on testnet.snowtrace.io.
+        export TIMEOUT=$(date -d "+1 min")
+        echo -e "> Verifying contract...\n"
+        until npm run verify --network fuji $CONTRACT_ADDRESS
+        do
+            if [[ $(date) > $TIMEOUT ]]; then
+                echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
+                exit 1
+            fi
+            echo -e "${RED}\n> Retrying in 10 seconds...\n${RESET}"
+            sleep 10
+        done
+      continue-on-error: true     
+    env:
+      FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
+      SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
+      COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
   
   # Audit CI workflow.
   # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
@@ -53,10 +90,10 @@ jobs:
     - name: 🪄 Set up env
       run: cp .env.sample .env
     - name: ⚙️ Compile
-      run: npx hardhat compile
+      run: npm run compile
     - name: 🐍 Run slither
-      run: slither .
+      run: npm run slither
       continue-on-error: true
     - name: 🛡️ Run mythril
-      run: myth analyze contracts/Fund.sol contracts/APIConsumer.sol
+      run: npm run mythril
       continue-on-error: true

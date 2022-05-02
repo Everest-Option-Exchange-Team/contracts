@@ -10,7 +10,7 @@
     "deploy-fund": "npx hardhat run deploy/fund.js",
     "deploy-api-consumer": "npx hardhat run deploy/api-consumer.js",
     "slither": "slither .",
-    "mythril": "myth analyze contracts/*.sol"
+    "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/StockAPIConsumer.sol"
   },
   "repository": {
     "type": "git",
