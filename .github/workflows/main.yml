@@ -3,12 +3,16 @@ name: CI Workflow
 on:
   push:
     paths:
+      - '.github/workflows/main.yml'
       - 'contracts/*.sol'
 
 jobs:
   # Hardhat CI workflow.
-  # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
+  # It compiles, tests and deploys the smart contracts to localhost and fuji networks.
   hardhat:
+    strategy:
+      matrix:
+        contract: ['fund', 'api-consumer']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -22,11 +26,11 @@ jobs:
     - name: 🪄 Set up env
       run: cp .env.sample .env
     - name: ⚙️ Compile
-      run: npx hardhat compile
+      run: npm run compile
     - name: 🧪 Test
-      run: npx hardhat test
-    - name: 🏠 Deploy to localhost
-      run: npx hardhat run deploy/fund.js
+      run: npm run test
+    - name: 🏠 Deploy contract to localhost
+      run: CI=false npm run deploy-${{ matrix.contract }}
     - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
         # Define useful variables.
@@ -36,7 +40,7 @@ jobs:
 
         # Deploy to fuji testnet.
         echo "> Deploying contract on fuji testnet..."
-        export CONTRACT_ADDRESS=$(CI=true npx hardhat run deploy/fund.js --network fuji)
+        export CONTRACT_ADDRESS=$(CI=true npm run deploy-${{ matrix.contract }} -- --network fuji)
         if [[ -z "$CONTRACT_ADDRESS" ]]; then
             echo -e "${RED}> Error while deploying the contract.${RESET}"
             exit 1
@@ -47,7 +51,7 @@ jobs:
         # Verify contract on testnet.snowtrace.io.
         export TIMEOUT=$(date -d "+1 min")
         echo -e "> Verifying contract...\n"
-        until npx hardhat verify --network fuji $CONTRACT_ADDRESS
+        until npx hardhat verify $CONTRACT_ADDRESS --network fuji
         do
             if [[ $(date) > $TIMEOUT ]]; then
                 echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
@@ -61,7 +65,7 @@ jobs:
       FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
       SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
       COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
-  
+
   # Audit CI workflow.
   # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
   audit:
@@ -85,13 +89,15 @@ jobs:
         pip3 install slither-analyzer mythril
     - name: 🔧 Install solc
       run: |
-        sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
+        sudo wget -O /usr/bin/solc https://github.com/ethereum/solidity/releases/download/v0.8.7/solc-static-linux
         sudo chmod +x /usr/bin/solc
     - name: 🪄 Set up env
       run: cp .env.sample .env
     - name: ⚙️ Compile
-      run: npx hardhat compile
+      run: npm run compile
     - name: 🐍 Run slither
-      run: slither .
+      run: npm run slither
+      continue-on-error: true
     - name: 🛡️ Run mythril
-      run: myth analyze contracts/Fund.sol
+      run: npm run mythril
+      continue-on-error: true

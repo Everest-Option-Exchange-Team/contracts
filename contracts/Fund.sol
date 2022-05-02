@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.7;
 
 /**
  * @title A simple contract to which you can send money and then withdraw it.
@@ -40,7 +40,6 @@ contract Fund {
      * @notice Withdraw money from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
-    //slither-disable-next-line naming-convention
     function withdraw(uint256 _amount) external payable {
         require(_amount <= amountFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
         amountFundedByAddress[msg.sender] -= _amount;

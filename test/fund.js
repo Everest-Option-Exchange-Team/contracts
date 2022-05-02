@@ -49,7 +49,7 @@ describe("Fund smart contract tests", () => {
     })
 
     describe("Withdraw", () => {
-        it("Withdraw money from the fund", async () => {
+        it("Should withdraw money from the fund", async () => {
             // Note: here the user is the owner of the contract but it could be any other user.
             const amountDeposited = utils.parseEther("1.5");
 

@@ -3,11 +3,21 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("dotenv").config();
 
-const { SNOWTRACE_API_KEY, COINMARKETCAP_API_KEY } = process.env;
+const { FUJI_PRIVATE_KEY, KOVAN_PRIVATE_KEY, MAINNET_PRIVATE_KEY, SNOWTRACE_API_KEY, COINMARKETCAP_API_KEY, ALCHEMY_API_KEY } = process.env;
 
 module.exports = {
   solidity: {
-    version: "0.8.4",
+    compilers: [
+      {
+        version: "0.8.7",
+      },
+      {
+        version: "0.6.6",
+      },
+      {
+        version: "0.4.24",
+      },
+    ],
     settings: {
       optimizer: {
         enabled: true,
@@ -37,13 +47,17 @@ module.exports = {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43113,
-      accounts: [process.env.FUJI_PRIVATE_KEY]
+      accounts: [FUJI_PRIVATE_KEY]
+    },
+    kovan: {
+      url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [KOVAN_PRIVATE_KEY]
     },
     mainnet: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43114,
-      accounts: [process.env.MAINNET_PRIVATE_KEY]
+      accounts: [MAINNET_PRIVATE_KEY]
     }
   },
   gasReporter: {

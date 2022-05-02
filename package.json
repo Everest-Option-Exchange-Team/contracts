@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "npx hardhat compile",
+    "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
-    "deploy-local": "npx hardhat run deploy/fund.js --network local",
-    "deploy-fuji": "npx hardhat run deploy/fund.js --network fuji",
-    "deploy-mainnet": "npx hardhat run deploy/fund.js --network mainnet",
+    "verify": "npx hardhat verify",
+    "deploy-fund": "npx hardhat run deploy/fund.js",
+    "deploy-api-consumer": "npx hardhat run deploy/api-consumer.js",
     "slither": "slither .",
-    "mythril": "myth analyze contracts/Fund.sol"
+    "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/StockAPIConsumer.sol"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,8 @@
     "web3": "^1.5.2"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.4.0",
+    "@chainlink/token": "^1.1.0",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "dotenv": "^16.0.0",
     "hardhat-gas-reporter": "^1.0.8"
