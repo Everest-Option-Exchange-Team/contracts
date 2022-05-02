@@ -27,7 +27,7 @@ describe("Fund smart contract tests", () => {
             expect(funders.includes(owner.address)).to.be.false;
 
             // Check that the user did not deposit anything to the fund.
-            let amountFundedByUser = await contract.getAddressToAmountFunded(owner.address);
+            let amountFundedByUser = await contract.getAmountFundedByAddress(owner.address);
             expect(amountFundedByUser).to.equal(0);
 
             // Send money to the fund.
@@ -43,7 +43,7 @@ describe("Fund smart contract tests", () => {
             expect(funders.includes(owner.address)).to.be.true;
 
             // Check that the amount funded by the user is equal to the amount deposited.
-            amountFundedByUser = await contract.getAddressToAmountFunded(owner.address);
+            amountFundedByUser = await contract.getAmountFundedByAddress(owner.address);
             expect(amountFundedByUser).to.equal(amountDeposited);
         });
     })
@@ -94,13 +94,13 @@ describe("Fund smart contract tests", () => {
         });
     })
 
-    describe("GetAddressToAmountFunded", () => {
+    describe("GetAmountFundedByAddress", () => {
         it("Should return the amount deposited by the user", async () => {
             // Check that the owner and the user have deposited nothing to the fund.
-            let amountFundedByOwner = await contract.getAddressToAmountFunded(owner.address);
+            let amountFundedByOwner = await contract.getAmountFundedByAddress(owner.address);
             expect(amountFundedByOwner).to.equal(0);
 
-            let amountFundedByUser = await contract.getAddressToAmountFunded(user.address);
+            let amountFundedByUser = await contract.getAmountFundedByAddress(user.address);
             expect(amountFundedByUser).to.equal(0);
 
             // The user sends money to the fund.
@@ -109,10 +109,10 @@ describe("Fund smart contract tests", () => {
 
             // Check that the user has deposited money to the fund.
             // Also check that the owner has still deposited nothing.
-            amountFundedByOwner = await contract.getAddressToAmountFunded(owner.address);
+            amountFundedByOwner = await contract.getAmountFundedByAddress(owner.address);
             expect(amountFundedByOwner).to.equal(0);
 
-            amountFundedByUser = await contract.getAddressToAmountFunded(user.address);
+            amountFundedByUser = await contract.getAmountFundedByAddress(user.address);
             expect(amountFundedByUser).to.equal(utils.parseEther("1.5"));
         });
     })

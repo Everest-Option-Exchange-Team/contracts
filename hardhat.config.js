@@ -1,8 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("dotenv").config();
 
-const { COINMARKETCAP_API_KEY } = process.env;
+const { SNOWTRACE_API_KEY, COINMARKETCAP_API_KEY } = process.env;
 
 module.exports = {
   solidity: {
@@ -49,5 +50,8 @@ module.exports = {
     currency: "EUR",
     token: "AVAX",
     coinmarketcap: COINMARKETCAP_API_KEY,
+  },
+  etherscan: {
+    apiKey: SNOWTRACE_API_KEY,
   }
 }
