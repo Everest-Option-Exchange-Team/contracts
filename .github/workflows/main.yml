@@ -9,7 +9,7 @@ on:
 jobs:
   # Hardhat CI workflow.
   # It compiles, tests and deploys the smart contracts to localhost and fuji networks.
-  build-test:
+  hardhat:
     strategy:
       matrix:
         contract: ['fund', 'api-consumer']
