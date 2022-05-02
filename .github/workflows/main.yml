@@ -65,7 +65,7 @@ jobs:
   
   # Hardhat CI workflow for the StockAPIConsumer contract.
   # It compiles, tests and deploys the contract on localhost and fuji network.
-  fund:
+  api-consumer:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
