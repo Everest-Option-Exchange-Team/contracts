@@ -7,9 +7,9 @@ on:
       - 'contracts/*.sol'
 
 jobs:
-  # Hardhat CI workflow.
-  # It installs the project dependencies as well as hardhat and it compiles, tests and deploys the smart contracts.
-  hardhat:
+  # Hardhat CI workflow for the Fund contract.
+  # It compiles, tests and deploys the contract on localhost and fuji network.
+  fund:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       run: npm run compile
     - name: 🧪 Test
       run: npm run test
-    - name: 🏠 Deploy to localhost
+    - name: 🏠 Deploy contract to localhost
       run: CI=false npm run deploy-fund
     - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
@@ -38,6 +38,62 @@ jobs:
         # Deploy to fuji testnet.
         echo "> Deploying contract on fuji testnet..."
         export CONTRACT_ADDRESS=$(CI=true npm run deploy-fund -- --network fuji)
+        if [[ -z "$CONTRACT_ADDRESS" ]]; then
+            echo -e "${RED}> Error while deploying the contract.${RESET}"
+            exit 1
+        else
+            echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
+        fi
+
+        # Verify contract on testnet.snowtrace.io.
+        export TIMEOUT=$(date -d "+1 min")
+        echo -e "> Verifying contract...\n"
+        until npx hardhat verify $CONTRACT_ADDRESS --network fuji
+        do
+            if [[ $(date) > $TIMEOUT ]]; then
+                echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
+                exit 1
+            fi
+            echo -e "${RED}\n> Retrying in 10 seconds...\n${RESET}"
+            sleep 10
+        done
+      continue-on-error: true     
+    env:
+      FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
+      SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
+      COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+  
+  # Hardhat CI workflow for the StockAPIConsumer contract.
+  # It compiles, tests and deploys the contract on localhost and fuji network.
+  fund:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: 📦 Use Node.js v16.14.2 (LTS)
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.14.2
+        cache: 'npm'
+    - name: 🔧 Install hardhat
+      run: npm i --save-dev hardhat
+    - name: 🪄 Set up env
+      run: cp .env.sample .env
+    - name: ⚙️ Compile
+      run: npm run compile
+    - name: 🧪 Test
+      run: npm run test
+    - name: 🏠 Deploy contract to localhost
+      run: CI=false npm run deploy-api-consumer
+    - name: 🚀 Deploy and verify contract to fuji testnet
+      run: |
+        # Define useful variables.
+        export GREEN="\033[1;32m"
+        export RED="\033[1;31m"
+        export RESET="\033[0m"
+
+        # Deploy to fuji testnet.
+        echo "> Deploying contract on fuji testnet..."
+        export CONTRACT_ADDRESS=$(CI=true npm run deploy-api-consumer -- --network fuji)
         if [[ -z "$CONTRACT_ADDRESS" ]]; then
             echo -e "${RED}> Error while deploying the contract.${RESET}"
             exit 1
