@@ -48,7 +48,7 @@ jobs:
         # Verify contract on testnet.snowtrace.io.
         export TIMEOUT=$(date -d "+1 min")
         echo -e "> Verifying contract...\n"
-        until npm run verify -- --network fuji $CONTRACT_ADDRESS
+        until npx hardhat verify $CONTRACT_ADDRESS --network fuji
         do
             if [[ $(date) > $TIMEOUT ]]; then
                 echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
