@@ -30,13 +30,12 @@ Then populate it with:
 - Compile: `$ npm run compile`
 - Test: `$ npm run test`
 - Deploy:
-    - Fund contract: `$ npm run deploy-fund --network <network>`
-    - StockAPIConsumer contract: `$ npm run deploy-api-consumer --network <network>`
-    You can either deploy on kovan, fuji
-    Don't specify the network if you want to deploy on localhost.
+    - On localhost: `$ npm run <deploy-fund|deploy-api-consumer>`
+    - On any other network: `$ npm run <deploy-fund|deploy-api-consumer> -- --network <network>`\
+      For example on fuji testnet: `$ npm run deploy-fund -- --network fuji`
 - Audit:
-    - With slither: `$ npm run slither`
-    - With mythril: `$ npm run mythril`
+    - Slither: `$ npm run slither`
+    - Mythril: `$ npm run mythril`
 
 ### 🪙 Fuji faucets
 

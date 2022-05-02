@@ -26,7 +26,7 @@ jobs:
     - name: 🧪 Test
       run: npm run test
     - name: 🏠 Deploy to localhost
-      run: npm run deploy-fund
+      run: CI=false npm run deploy-fund
     - name: 🚀 Deploy and verify contract to fuji testnet
       run: |
         # Define useful variables.
@@ -36,7 +36,7 @@ jobs:
 
         # Deploy to fuji testnet.
         echo "> Deploying contract on fuji testnet..."
-        export CONTRACT_ADDRESS=$(CI=true npm run deploy-fund --network fuji)
+        export CONTRACT_ADDRESS=$(CI=true npm run deploy-fund -- --network fuji)
         if [[ -z "$CONTRACT_ADDRESS" ]]; then
             echo -e "${RED}> Error while deploying the contract.${RESET}"
             exit 1
@@ -47,7 +47,7 @@ jobs:
         # Verify contract on testnet.snowtrace.io.
         export TIMEOUT=$(date -d "+1 min")
         echo -e "> Verifying contract...\n"
-        until npm run verify --network fuji $CONTRACT_ADDRESS
+        until npm run verify -- --network fuji $CONTRACT_ADDRESS
         do
             if [[ $(date) > $TIMEOUT ]]; then
                 echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
