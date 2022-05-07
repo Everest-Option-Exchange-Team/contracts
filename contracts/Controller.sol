@@ -2,8 +2,15 @@
 pragma solidity ^0.8.7;
 
 contract Controller {
-    function mintToken(address reciever, uint256 amount) external {
+    address minterAddress;
 
+    constructor(address _minterAddress) {
+        minterAddress = _minterAddress;
+    }
+
+    function mintToken(address reciever, uint256 amount) external {
+        ERC20MinterPauser minter = ERC20MinterPauser(minterAddress);
+        minter.mint(reciever, amount);
     }
 
     function burnToken(address payer, uint256 amount) external {

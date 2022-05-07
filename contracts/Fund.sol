@@ -12,7 +12,7 @@ contract Fund {
     address controllerAddress;
 
     constructor(address _controllerAddress) {
-        controller = _controllerAddress;
+        controllerAddress = _controllerAddress;
     }
 
     /**
@@ -87,7 +87,7 @@ contract Fund {
     function mintERC20Tokens(uint256 amountTokens) external {
         require(amountFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
         Controller controller = Controller(controllerAddress);
-
+        controller.mintToken(msg.sender, amountTokens);
     }
 
 }
