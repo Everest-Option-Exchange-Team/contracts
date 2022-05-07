@@ -35,11 +35,11 @@ contract ERC20MinterPauser is Context, AccessControlEnumerable, ERC20Burnable, E
      *
      * See {ERC20-constructor}.
      */
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, address controllerAddress) ERC20(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
-        _setupRole(MINTER_ROLE, _msgSender());
-        _setupRole(PAUSER_ROLE, _msgSender());
+        _setupRole(MINTER_ROLE, controllerAddress);
+        _setupRole(PAUSER_ROLE, controllerAddress);
     }
 
     function decimals() public view virtual override returns (uint8) {
