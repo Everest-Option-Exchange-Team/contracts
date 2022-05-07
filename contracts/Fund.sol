@@ -9,6 +9,11 @@ contract Fund {
     mapping(address => uint256) public amountFundedByAddress;
     uint256 public totalFunds;
     address[] public funders;
+    address controllerAddress;
+
+    constructor(address _controllerAddress) {
+        controller = _controllerAddress;
+    }
 
     /**
      * @notice Event triggered when user deposits funds to the contract.
@@ -81,6 +86,7 @@ contract Fund {
      */
     function mintERC20Tokens(uint256 amountTokens) external {
         require(amountFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
+        Controller controller = Controller(controllerAddress);
 
     }
 
@@ -89,5 +95,4 @@ contract Fund {
 interface Controller {
     function mintToken(address reciever, uint256 amount) external;
     function burnToken(address payer, uint256 amount) external;
-    
 }
