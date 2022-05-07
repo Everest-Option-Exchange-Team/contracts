@@ -73,4 +73,21 @@ contract Fund {
     function getTotalFunds() external view returns (uint256) {
         return totalFunds;
     }
+
+    /**
+     * @notice Check if user deposited required amount. Sends information to controller.
+     * @param amountTokens amountToken user wants to Mint
+     * @dev Firstly: 1 Token = Avax, Later: 1 Token = c ratio * real asset price
+     */
+    function mintERC20Tokens(uint256 amountTokens) external {
+        require(amountFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
+
+    }
+
+}
+
+interface Controller {
+    function mintToken(address reciever, uint256 amount) external;
+    function burnToken(address payer, uint256 amount) external;
+    
 }
