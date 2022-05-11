@@ -30,12 +30,12 @@ async function main() {
   }
 
   // Deploy the contract on the blockchain
-  const contractFactory = await hre.ethers.getContractFactory("StockAPIConsumer");
+  const contractFactory = await hre.ethers.getContractFactory("Storage");
   const oracleAddress = "0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8";
   const jobId = "d5270d1c311941d0b08bead21fea7747";
   const contract = await contractFactory.deploy(linkTokenAddress, oracleAddress, ethers.utils.hexlify(ethers.utils.toUtf8Bytes(jobId)), ALPHA_VANTAGE_API_KEY);
   await contract.deployed();
-  console.log("StockAPIConsumer contract deployed to:", contract.address);
+  console.log("Storage contract deployed to:", contract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

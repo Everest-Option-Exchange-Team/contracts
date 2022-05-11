@@ -12,7 +12,7 @@ jobs:
   hardhat:
     strategy:
       matrix:
-        contract: ['fund', 'api-consumer']
+        contract: ['fund', 'storage']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
