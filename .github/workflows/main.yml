@@ -4,7 +4,11 @@ on:
   push:
     paths:
       - '.github/workflows/main.yml'
-      - 'contracts/*.sol'
+      - 'contracts/**.sol'
+      - 'deploy/*.sol'
+      - 'test/*.sol'
+      - 'hardhat.config.json'
+      - 'package.json'
 
 jobs:
   # Hardhat CI workflow.
