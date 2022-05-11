@@ -54,10 +54,11 @@ contract Storage is ChainlinkClient {
     }
     
     /**
-     * @notice Request stock price from the API.
-     * @dev It uses the Alpha Vantage API.
+     * @notice Update the stock price using the Alpha Vantage API.
+     * @param _stock the stock.
+     $ @return requestId the id of the Chainlink request.
      */
-    function requestPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
+    function updateAssetPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
