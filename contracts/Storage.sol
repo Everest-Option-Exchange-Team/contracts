@@ -4,11 +4,12 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /**
- * @title Generic contract which consumes the Alpha Vantage stock price API.
- * @dev https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
+ * @title Storage contract that retrieves stock prices.
+ * @dev It consumes the Alpha Vantage stock price API using Chainlink Data Feeds.
+ * See the external adapter on the market: https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
  * @author The Everest team.
  */
-contract StockAPIConsumer is ChainlinkClient {
+contract Storage is ChainlinkClient {
     using Chainlink for Chainlink.Request;
 
     uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
