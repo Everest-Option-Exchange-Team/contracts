@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
-contract Controller {
+contract Hub {
     address minterAddress;
 
     function mintToken(address reciever, uint256 amount) external {
-        ERC20MinterPauser minter = ERC20MinterPauser(minterAddress);
+        Minter minter = Minter(minterAddress);
         minter.mint(reciever, amount);
     }
 
@@ -18,11 +18,6 @@ contract Controller {
     }
 }
 
-interface ERC20MinterPauser {
+interface Minter {
     function mint(address to, uint256 amount) external;
-    function pause() external;
-    function unpause() external;
-    function burn(uint256 amount) external;
-    function burnFrom(address account, uint amount) external;
-
 }
