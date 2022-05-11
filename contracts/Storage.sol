@@ -67,7 +67,8 @@ contract Storage is ChainlinkClient {
      * @notice Add an asset to the list of supported assets.
      * @param _asset the asset name.
      */
-    function addAsset(string memory _asset) external onlyOwner assetExists(_asset) {
+    function addAsset(string memory _asset) external onlyOwner {
+        require(!assetToPrice[_asset].exists);
         assetList.push(_asset);
         assetToPrice[_asset].exists = true;
     }
