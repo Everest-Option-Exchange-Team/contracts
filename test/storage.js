@@ -44,24 +44,64 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 
 		/*
 		// TODO: Write the request price test function.
-		describe("RequestPrice", () => {
+		describe("UpdateAssetPrice", () => {
 			it("Should ask for the TSLA stock price", async () => {
 				// Check the TSLA price stored in the contract is null.
-				const tslaPrice = await storageContract.stockToPrices("TSLA");
+				const tslaPrice = await storageContract.assetToPrice("TSLA");
 				expect(tslaPrice.toNumber()).to.equal(0);
 
 				// Request the new TSLA stock price.
-				const txn = await storageContract.requestPrice("TSLA");
+				const txn = await storageContract.updateAssetPrice("TSLA");
 				const transactionReceipt = await txn.wait();
 				const requestId = transactionReceipt.events[0].topics[1];
 				console.log("ID of the TSLA stock price request:", requestId);
 				expect(requestId).to.not.be.null
 
 				// TODO: Check the result.
-				await mockOracleContract.fulfillOracleRequest(requestId, utils.formatBytes32String('TSLA'));
+				await mockOracleContract.fulfillOracleRequest(requestId, utils.formatBytes32String("TSLA"));
 			});
 		});
 		*/
+
+		describe("AddAsset and GetAssetList", () => {
+			it("Add a new asset to the supported list of assets", async () => {
+				// Check that the supported asset list is empty.
+				let assetList = await storageContract.getAssetList();
+            	expect(assetList).to.be.empty;
+
+				// Add three new assets to the supported asset list.
+				let txn = await storageContract.addAsset("asset1");
+				await txn.wait();
+
+				txn = await storageContract.addAsset("asset2");
+				await txn.wait();
+
+				txn = await storageContract.addAsset("asset3");
+				await txn.wait();
+
+				// Check that the supported asset list is correctly updated.
+				assetList = await storageContract.getAssetList();
+            	expect(assetList).to.eql(["asset1", "asset2", "asset3"]);
+
+				// It should fail when any user tries to add a new asset.
+				await storageContract.connect(user).addAsset("asset4").reverted;
+			});
+		});
+
+		describe("GetAssetPrice", () => {
+			it("Should get the price of an asset", async () => {
+				// Add a new asset.
+				const txn = await storageContract.addAsset("asset1");
+				await txn.wait();
+
+				// Get the asset price (it should be 0).
+				const assetPrice = await storageContract.getAssetPrice("asset1");
+				expect(assetPrice).to.equal(0);
+
+				// It should fail when getting the price of an unsupported asset.
+				await storageContract.getAssetPrice("asset2").reverted;
+			});
+		});
 
 		describe("UpdateOracleAddress", () => {
 			it("Should update the oracle address", async () => {
