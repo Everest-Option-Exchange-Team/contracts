@@ -4,8 +4,8 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 /**
- * @title Storage contract that retrieves stock prices.
- * @dev It consumes the Alpha Vantage stock price API using Chainlink Data Feeds.
+ * @title Storage contract that retrieves asset prices.
+ * @dev It consumes the Alpha Vantage asset price API using Chainlink Data Feeds.
  * See the external adapter on the market: https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
  * @author The Everest team.
  */
@@ -13,14 +13,19 @@ contract Storage is ChainlinkClient {
     using Chainlink for Chainlink.Request;
 
     uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
-    
     address public owner;
     address internal oracleAddress;
     bytes32 internal jobId;
     string private apiKey;
-    
-    mapping(bytes32 => string) private requestIdToStock;
-    mapping(string => uint256) public stockToPrices;
+
+    struct Asset {
+        uint256 price;
+        bool exists;
+    }
+
+    mapping(bytes32 => string) private requestIdToAsset;
+    mapping(string => Asset) public assetToPrice;
+    string[] public assetList;
 
     event PriceUpdated(bytes32 indexed requestId, uint256 price);
     event OracleAddressUpdated();
@@ -30,6 +35,11 @@ contract Storage is ChainlinkClient {
 
     modifier onlyOwner() {
         require (msg.sender == owner);
+        _;
+    }
+
+    modifier assetExists(string memory _asset) {
+        require(assetToPrice[_asset].exists);
         _;
     }
 
@@ -52,17 +62,44 @@ contract Storage is ChainlinkClient {
         jobId = _jobId;
         apiKey = _apiKey;
     }
+
+    /**
+     * @notice Add an asset to the list of supported assets.
+     * @param _asset the asset name.
+     */
+    function addAsset(string memory _asset) external onlyOwner assetExists(_asset) {
+        assetList.push(_asset);
+        assetToPrice[_asset].exists = true;
+    }
     
     /**
-     * @notice Update the stock price using the Alpha Vantage API.
-     * @param _stock the stock.
+     * @notice Return the price of an asset.
+     * @dev The asset must be supported by the contract.
+     * @param _asset the asset name.
+     * @return _ the price of the asset.
+     */
+    function getAssetPrice(string memory _asset) external view assetExists(_asset) returns (uint256) {
+        return assetToPrice[_asset].price;
+    }
+
+    /**
+     * @notice Return the list of supported assets.
+     * @return _ the list of supported assets.
+     */
+    function getAssetList() external view returns (string[] memory) {
+        return assetList;
+    }
+
+    /**
+     * @notice Update the asset price using the Alpha Vantage API.
+     * @param _asset the asset name.
      $ @return requestId the id of the Chainlink request.
      */
-    function updateAssetPrice(string memory _stock) external onlyOwner returns (bytes32 requestId) {
+    function updateAssetPrice(string memory _asset) external onlyOwner assetExists(_asset) returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
-            _stock,
+            _asset,
             "&apikey=",
             apiKey
         ));
@@ -73,17 +110,17 @@ contract Storage is ChainlinkClient {
         req.addStringArray("path", path);
         req.addInt("times", 100);
         requestId = sendChainlinkRequestTo(oracleAddress, req, FEE);
-        requestIdToStock[requestId] = _stock;
+        requestIdToAsset[requestId] = _asset;
     }
 
     /**
-     * @notice Callback function that updates the stock price stored in the contract.
+     * @notice Callback function that updates the asset price stored in the contract.
      * @param _requestId the id of the Chainlink request.
-     * @param _price the new stock price.
+     * @param _price the new asset price.
      */
     function fulfill(bytes32 _requestId, uint256 _price) external recordChainlinkFulfillment(_requestId) {
-        string memory stock = requestIdToStock[_requestId];
-    	stockToPrices[stock] = _price;
+        string memory asset = requestIdToAsset[_requestId];
+    	assetToPrice[asset].price = _price;
         emit PriceUpdated(_requestId, _price);
     }
 
