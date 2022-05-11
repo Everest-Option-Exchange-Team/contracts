@@ -2,21 +2,30 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 /**
  * @title Storage contract that retrieves asset prices.
  * @dev It consumes the Alpha Vantage asset price API using Chainlink Data Feeds.
  * See the external adapter on the market: https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
+ * @dev The supported asset prices are updated every {_updateInterval} seconds using Chainlink Keepers.
+ * To make it work, the contract must be registered as an Unkeep on the Keepers Registry after its deployment.
+ * See: https://docs.chain.link/docs/chainlink-keepers/register-upkeep/.
  * @author The Everest team.
  */
-contract Storage is ChainlinkClient {
+contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     using Chainlink for Chainlink.Request;
 
+    // Chainlink external adapter parameters.
     uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
     address public owner;
     address internal oracleAddress;
     bytes32 internal jobId;
     string private apiKey;
+
+    // Chainlink keepers parameters.
+    uint public immutable interval;
+    uint public lastTimeStamp;
 
     struct Asset {
         uint256 price;
@@ -49,18 +58,24 @@ contract Storage is ChainlinkClient {
      * @param _oracleAddress the address of the chainlink node operator.
      * @param _jobId the id of the job.
      * @param _apiKey the alpha vantage api key.
+     * @param _updateInterval the update interval of the supported asset prices (in seconds).
      */
-    constructor(address _linkAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey) {
+    constructor(address _linkAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey, uint256 _updateInterval) {
         if (_linkAddress == address(0)) {
             setPublicChainlinkToken();
         } else {
             setChainlinkToken(_linkAddress);
         }
 
+        // Chainlink external adapter parameters.
         owner = msg.sender;
         oracleAddress = _oracleAddress;
         jobId = _jobId;
         apiKey = _apiKey;
+
+        // Chainlink keepers parameters.
+        interval = _updateInterval;
+        lastTimeStamp = block.timestamp;
     }
 
     /**
@@ -96,7 +111,7 @@ contract Storage is ChainlinkClient {
      * @param _asset the asset name.
      $ @return requestId the id of the Chainlink request.
      */
-    function updateAssetPrice(string memory _asset) external onlyOwner assetExists(_asset) returns (bytes32 requestId) {
+    function updateAssetPrice(string memory _asset) public onlyOwner assetExists(_asset) returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
@@ -160,4 +175,32 @@ contract Storage is ChainlinkClient {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
         require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
     }
+
+    /**
+     * @notice Check if the performUpkeep function should be executed.
+     * @dev See the Chainlink Keepers documentation: https://docs.chain.link/docs/chainlink-keepers/compatible-contracts/.
+     * @return _ boolean that when true, will trigger the on-chain performUpkeep call.
+     * @return _ bytes that will be used as input parameter when calling performUpkeep (here empty).
+     */
+    function checkUpkeep(bytes calldata) external view override returns (bool, bytes memory) {
+        return((block.timestamp - lastTimeStamp) > interval, abi.encode(assetList));
+    }
+
+    /**
+     * @notice Update the price of all the supported assets.
+     * @dev Function triggered when checkUpkeep function returns upkeepNeeded == true.
+     * @param _performData the list of supported assets.
+     */
+    function performUpkeep(bytes calldata _performData) external override {
+        // Re-validate the upkeep condition.
+        if ((block.timestamp - lastTimeStamp) > interval ) {
+            lastTimeStamp = block.timestamp;
+            string[] memory supportedAssets = abi.decode(_performData, (string[]));
+
+            // Update the price of all the supported assets.
+            for (uint256 i = 0; i < supportedAssets.length; i++) {
+                updateAssetPrice(supportedAssets[i]);
+            }
+        }
+    } 
 }

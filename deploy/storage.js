@@ -33,7 +33,8 @@ async function main() {
   const contractFactory = await hre.ethers.getContractFactory("Storage");
   const oracleAddress = "0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8";
   const jobId = "d5270d1c311941d0b08bead21fea7747";
-  const contract = await contractFactory.deploy(linkTokenAddress, oracleAddress, ethers.utils.hexlify(ethers.utils.toUtf8Bytes(jobId)), ALPHA_VANTAGE_API_KEY);
+  const updateInterval = 60; // in seconds
+  const contract = await contractFactory.deploy(linkTokenAddress, oracleAddress, ethers.utils.hexlify(ethers.utils.toUtf8Bytes(jobId)), ALPHA_VANTAGE_API_KEY, updateInterval);
   await contract.deployed();
   console.log("Storage contract deployed to:", contract.address);
 }

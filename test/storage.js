@@ -33,7 +33,7 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 
 			// Deploy the stock api consumer contract.
 			const storageContractFactory = await hre.ethers.getContractFactory("Storage");
-			storageContract = await storageContractFactory.deploy(linkTokenContract.address, oracle.address, ethers.constants.HashZero, "apikey");
+			storageContract = await storageContractFactory.deploy(linkTokenContract.address, oracle.address, ethers.constants.HashZero, "apikey", 60);
 			await storageContract.deployed();
 			console.log("Storage contract deployed to:", storageContract.address);
 
