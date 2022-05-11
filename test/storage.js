@@ -8,7 +8,7 @@ const { expect } = require("chai");
 const LOCAL_CHAIN_ID = 31337;
 if (network.config.chainId === LOCAL_CHAIN_ID) {
 	describe("Price Consumer smart contract tests", () => {
-		let stockAPIConsumerContract, mockOracleContract, owner, user, oracle, temp;
+		let storageContract, mockOracleContract, owner, user, oracle, temp;
 
 		beforeEach(async () => {
 			// Define an owner and a user.
@@ -32,14 +32,14 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 			console.log("Mock oracle contract deployed to:", mockOracleContract.address);
 
 			// Deploy the stock api consumer contract.
-			const stockAPIConsumerContractFactory = await hre.ethers.getContractFactory("StockAPIConsumer");
-			stockAPIConsumerContract = await stockAPIConsumerContractFactory.deploy(linkTokenContract.address, oracle.address, ethers.constants.HashZero, "apikey");
-			await stockAPIConsumerContract.deployed();
-			console.log("StockAPIConsumer contract deployed to:", stockAPIConsumerContract.address);
+			const storageContractFactory = await hre.ethers.getContractFactory("Storage");
+			storageContract = await storageContractFactory.deploy(linkTokenContract.address, oracle.address, ethers.constants.HashZero, "apikey");
+			await storageContract.deployed();
+			console.log("Storage contract deployed to:", storageContract.address);
 
 			// Fund the stock api consumer contract with some LINK tokens.
-			await linkTokenContract.transfer(stockAPIConsumerContract.address, utils.parseEther("1"));
-			console.log("StockAPIConsumer contract funded with 1 LINK token");
+			await linkTokenContract.transfer(storageContract.address, utils.parseEther("1"));
+			console.log("Storage contract funded with 1 LINK token");
 		});
 
 		/*
@@ -47,11 +47,11 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 		describe("RequestPrice", () => {
 			it("Should ask for the TSLA stock price", async () => {
 				// Check the TSLA price stored in the contract is null.
-				const tslaPrice = await stockAPIConsumerContract.stockToPrices("TSLA");
+				const tslaPrice = await storageContract.stockToPrices("TSLA");
 				expect(tslaPrice.toNumber()).to.equal(0);
 
 				// Request the new TSLA stock price.
-				const txn = await stockAPIConsumerContract.requestPrice("TSLA");
+				const txn = await storageContract.requestPrice("TSLA");
 				const transactionReceipt = await txn.wait();
 				const requestId = transactionReceipt.events[0].topics[1];
 				console.log("ID of the TSLA stock price request:", requestId);
@@ -65,21 +65,21 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 
 		describe("UpdateOracleAddress", () => {
 			it("Should update the oracle address", async () => {
-				const txn = await stockAPIConsumerContract.updateOracleAddress(temp.address);
+				const txn = await storageContract.updateOracleAddress(temp.address);
 				await txn.wait();
 			});
 		});
 
 		describe("UpdateJobID", () => {
 			it("Should update the job ID", async () => {
-				const txn = await stockAPIConsumerContract.updateJobId(ethers.constants.HashZero);
+				const txn = await storageContract.updateJobId(ethers.constants.HashZero);
 				await txn.wait();
 			});
 		});
 
 		describe("UpdateApiKey", () => {
 			it("Should update the api key", async () => {
-				const txn = await stockAPIConsumerContract.updateApiKey("test");
+				const txn = await storageContract.updateApiKey("test");
 				await txn.wait();
 			});
 		});
@@ -87,13 +87,11 @@ if (network.config.chainId === LOCAL_CHAIN_ID) {
 		describe("Withdraw", () => {
 			it("Should withdraw money from the fund", async () => {
 				// It should succeed when the owner tries to withdraw funds (LINK tokens).
-				const txn = await stockAPIConsumerContract.connect(owner).withdraw();
+				const txn = await storageContract.connect(owner).withdraw();
 				await txn.wait();
 
 				// It should fail when any other user tries to withdraw funds.
-				await stockAPIConsumerContract.connect(user).withdraw().reverted;
-				await stockAPIConsumerContract.connect(oracle).withdraw().reverted;
-				await stockAPIConsumerContract.connect(temp).withdraw().reverted;
+				await storageContract.connect(user).withdraw().reverted;
 			});
 		});
 	});
