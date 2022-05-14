@@ -94,9 +94,10 @@ contract Hub is Ownable {
      * @dev for all assets combined. No individual / isolated positions for now.
      * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral
      * @param addr address of user whom collateral ratio is to be checked.
-     * @param collateralTickerSymbol identifier of token used for collateral
+     * @param collateralTickerSymbol identifier of token used for collateral#
+     * @return collateral ratio
      */
-    function checkCollateralRatio(address addr, string memory collateralTickerSymbol) public returns (uint256) {
+    function checkCollateralRatio(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
          
          //Check amount funded
          uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
@@ -114,8 +115,7 @@ contract Hub is Ownable {
              uint256 assetValue = assetAmount * assetPrice;
              totalValueMinted += assetValue;
          }
-         //TODO: How do floating point calculation work in Solidity?
-         return collateralValue * 1.5 > totalValueMinted ? true : false;
+         return (collateralValue * (1 ether * 1.5)) / totalValueMinted;
     }
 
 }
