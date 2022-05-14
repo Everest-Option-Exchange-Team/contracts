@@ -8,6 +8,7 @@ contract Hub is Ownable{
     Fund fundContract;
     Storage storageContract;
     address[] authorizedAddresses;
+    mapping(string => address) private tickersymbolToAddress;
 
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
@@ -27,19 +28,24 @@ contract Hub is Ownable{
         authorizedAddresses.push(addr);
     }
 
+    function updateContractProxy(string memory tickerSymbol, address addr) public onlyAuthorizedAddresses{
+        tickersymbolToAddress[tickerSymbol] = addr; 
+    }
+
     function mintToken(address receiver, uint256 amount) public {
         this.minterContract.mint(receiver, amount); 
     }
+    
 
-    function setMinterContract(address _minterAddress) public {
+    function setMinterContract(address _minterAddress) public onlyOwner{
         this.minterContract = new Minter(_minterAddress);
     }
 
-    function setFundContract(address _fundAddress) public {
+    function setFundContract(address _fundAddress) public onlyOwner{
         this.fundContract = new Fund(_fundAddress);
     }
 
-    function setStorageContract(address _storageAddress) public {
+    function setStorageContract(address _storageAddress) public onlyOwner{
         this.storageContract = new Storage(_storageAddress);
     }
 
