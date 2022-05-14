@@ -50,9 +50,17 @@ contract Hub is Ownable {
         storageContract = Storage(_storageAddress);
     }
 
-    function checkCollateralRatio() public returns (uint256) {
+    function checkCollateralRatio(address addr, string memory assetTickerSymbol, string memory collateralTickerSymbol) public returns (uint256) {
          uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
-         //TODO: 
+        
+
+         uint256 assetPrice = storageContract.getAssetPrice(assetTickerSymbol);
+         uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
+
+         uint256 collateralValue = amountFunded * collateralPrice;
+
+
+
     }
 
 }
@@ -66,5 +74,5 @@ interface Fund {
 }
 
 interface Storage {
-    //TODO: function to get price of specific stock
+    function getAssetPrice(string memory _asset) external view returns (uint256);
 }
