@@ -12,6 +12,7 @@ contract Hub is Ownable {
     address[] private authorizedAddresses;
     mapping(string => address) private tickersymbolToAddress;
 
+
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
         for(uint i = 0; i < authorizedAddresses.length; i++) {
@@ -52,7 +53,7 @@ contract Hub is Ownable {
 
     function checkCollateralRatio(address addr, string memory assetTickerSymbol, string memory collateralTickerSymbol) public returns (uint256) {
          uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
-        
+
 
          uint256 assetPrice = storageContract.getAssetPrice(assetTickerSymbol);
          uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
@@ -75,4 +76,8 @@ interface Fund {
 
 interface Storage {
     function getAssetPrice(string memory _asset) external view returns (uint256);
+    
+    function getAssetListOfUser(address _addr) external view returns (string[] memory);
+
+    function getAssetAmountOfUser(address _addr, string memory tickerSymbol) external view returns (uint256);
 }
