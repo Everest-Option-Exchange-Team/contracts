@@ -97,7 +97,7 @@ contract Hub is Ownable {
      * @param collateralTickerSymbol identifier of token used for collateral#
      * @return collateral ratio
      */
-    function checkCollateralRatio(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
+    function getCollateralRatio(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
          
          //Check amount funded
          uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
@@ -115,7 +115,8 @@ contract Hub is Ownable {
              uint256 assetValue = assetAmount * assetPrice;
              totalValueMinted += assetValue;
          }
-         return (collateralValue * (1 ether * 1.5)) / totalValueMinted;
+         //return collateral / totalValueMinted 
+         return collateralValue  / totalValueMinted;
     }
 
 }
