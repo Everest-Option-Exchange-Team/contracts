@@ -3,11 +3,13 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Hub is Ownable{
-    Minter minterContract;
-    Fund fundContract;
-    Storage storageContract;
-    address[] authorizedAddresses;
+
+
+contract Hub is Ownable {
+    Minter private minterContract;
+    Fund private fundContract;
+    Storage private storageContract;
+    address[] private authorizedAddresses;
     mapping(string => address) private tickersymbolToAddress;
 
     modifier onlyAuthorizedAddresses() {
@@ -32,21 +34,20 @@ contract Hub is Ownable{
         tickersymbolToAddress[tickerSymbol] = addr; 
     }
 
-    function mintToken(address receiver, uint256 amount) public {
-        this.minterContract.mint(receiver, amount); 
+    function mintToken(address receiver, uint256 amount) public onlyAuthorizedAddresses{
+        minterContract.mint(receiver, amount); 
     }
-    
 
     function setMinterContract(address _minterAddress) public onlyOwner{
-        this.minterContract = new Minter(_minterAddress);
+        minterContract = Minter(_minterAddress);
     }
 
     function setFundContract(address _fundAddress) public onlyOwner{
-        this.fundContract = new Fund(_fundAddress);
+        fundContract = Fund(_fundAddress);
     }
 
     function setStorageContract(address _storageAddress) public onlyOwner{
-        this.storageContract = new Storage(_storageAddress);
+        storageContract = Storage(_storageAddress);
     }
 
     function checkCollateralRatio() public returns (uint256) {
