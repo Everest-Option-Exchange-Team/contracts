@@ -3,12 +3,19 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
+/**
+ * @title Hub Contract that coordinates Storage, Fund and Minter contract.
+ * @dev The contract can mint new tokens, check the collateral ratio of addresses
+ * and liquidate addresses if the collateral ratio falls below 150%
+ * @author The Everest team.
+ */
 
 contract Hub is Ownable {
+    // Contract addresses
     Minter private minterContract;
     Fund private fundContract;
     Storage private storageContract;
+
     address[] private authorizedAddresses;
     mapping(string => address) private tickersymbolToAddress;
 
@@ -27,41 +34,79 @@ contract Hub is Ownable {
     constructor() {
     }
 
+    /**
+     * @notice Add an address to the list of authorized addresses
+     * @param addr address that gets added 
+     */
     function addAuthorizedAddress(address addr) public onlyOwner{
         authorizedAddresses.push(addr);
     }
 
+    /**
+     * @notice updates the address asssociated with an synthAsset
+     * @param tickerSymbol identifier of synthAsset
+     * @param addr new contract address of synthAsset 
+     */
     function updateContractProxy(string memory tickerSymbol, address addr) public onlyAuthorizedAddresses{
         tickersymbolToAddress[tickerSymbol] = addr; 
     }
 
-    function mintToken(address receiver, uint256 amount) public onlyAuthorizedAddresses{
+    /**
+     * @notice mints synthAssets to a specific address
+     * @param receiver address to which token gets minted
+     * @param amount amount of token that gets minted
+     * @param tickerSymbol identifier of which token gets minted
+     */
+    function mintToken(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
+        //TODO: mintToken for a specific synthAsset. 
+        //How do we interact with contracts we don't have the interface for
+        //-> every synthAsset contract
+        //maybe heritage??
         minterContract.mint(receiver, amount); 
     }
 
+    /**
+     * @notice sets the Minter contract address
+     * @param _minterAddress address of Minter contract
+     */
     function setMinterContract(address _minterAddress) public onlyOwner{
         minterContract = Minter(_minterAddress);
     }
 
+    /**
+     * @notice sets the Fund contract address
+     * @param _fundAddress address of Fund contract
+     */
     function setFundContract(address _fundAddress) public onlyOwner{
         fundContract = Fund(_fundAddress);
     }
 
+    /**
+     * @notice sets the Storage contract address
+     * @param _storageAddress address of Storage contract
+     */
     function setStorageContract(address _storageAddress) public onlyOwner{
         storageContract = Storage(_storageAddress);
     }
 
+    /**
+     * @notice checks the collateral ratio of an address.
+     * @dev for all assets combined. No individual / isolated positions for now.
+     * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral
+     * @param addr address of user whom collateral ratio is to be checked.
+     * @param assetTickerSymbol identifier of synthAsset
+     * @param collateralTickerSymbol identifier of token used for collateral
+     */
     function checkCollateralRatio(address addr, string memory assetTickerSymbol, string memory collateralTickerSymbol) public returns (uint256) {
+         
+         //Check amount funded
          uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
-
-
-         uint256 assetPrice = storageContract.getAssetPrice(assetTickerSymbol);
          uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
-
          uint256 collateralValue = amountFunded * collateralPrice;
 
-
-
+        //Check asset minted
+         uint256 assetPrice = storageContract.getAssetPrice(assetTickerSymbol);
+         
     }
 
 }
