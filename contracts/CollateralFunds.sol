@@ -6,8 +6,8 @@ pragma solidity ^0.8.7;
  * @author The Everest team.
  */
 contract Fund {
-    mapping(address => uint256) public amountFundedByAddress;
-    uint256 public totalFunds;
+    mapping(address => uint256) public collateralFundedByAddress;
+    uint256 public totalCollateral ;
     address[] public funders;
     address controllerAddress;
 
@@ -35,10 +35,10 @@ contract Fund {
      * @notice Send money to the fund.
      */
     function fund() external payable {
-        amountFundedByAddress[msg.sender] += msg.value;
-        totalFunds += msg.value;
+        collateralFundedByAddress[msg.sender] += msg.value;
+        totalCollateral  += msg.value;
         funders.push(msg.sender);
-        emit Deposit(msg.sender, msg.value, amountFundedByAddress[msg.sender]);
+        emit Deposit(msg.sender, msg.value, collateralFundedByAddress[msg.sender]);
     }
 
     /**
@@ -46,10 +46,10 @@ contract Fund {
      * @param _amount the amount to withdraw from the fund.
      */
     function withdraw(uint256 _amount) external payable {
-        require(_amount <= amountFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
-        amountFundedByAddress[msg.sender] -= _amount;
-        totalFunds -= _amount;
-        emit Withdraw(msg.sender, _amount, amountFundedByAddress[msg.sender]);
+        require(_amount <= collateralFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
+        collateralFundedByAddress[msg.sender] -= _amount;
+        totalCollateral  -= _amount;
+        emit Withdraw(msg.sender, _amount, collateralFundedByAddress[msg.sender]);
         payable(msg.sender).transfer(_amount);
     }
 
@@ -67,16 +67,16 @@ contract Fund {
      * @return _ amount deposited by a user
      */
     //slither-disable-next-line naming-convention
-    function getAmountFundedByAddress(address _addr) external view returns (uint256) {
-        return amountFundedByAddress[_addr];
+    function getCollateralFundedByAddress(address _addr) external view returns (uint256) {
+        return collateralFundedByAddress[_addr];
     }
 
     /*
      * @notice Get the total amount funded to this smart contract.
      * @return _ the amount of the total funds
      */
-    function getTotalFunds() external view returns (uint256) {
-        return totalFunds;
+    function getTotalCollateral () external view returns (uint256) {
+        return totalCollateral ;
     }
 
     /**
@@ -85,7 +85,7 @@ contract Fund {
      * @dev Firstly: 1 Token = Avax, Later: 1 Token = c ratio * real asset price
      */
     function mintERC20Tokens(uint256 amountTokens) external {
-        require(amountFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
+        require(collateralFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
         Controller controller = Controller(controllerAddress);
         controller.mintToken(msg.sender, amountTokens);
     }

@@ -5,19 +5,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Hub Contract that coordinates Storage, Fund and Minter contract.
- * @dev The contract can mint new tokens, check the collateral ratio of addresses
+ * @dev The contract can mint new synthtic assets (erc20 token), check the collateral ratio of addresses
  * and liquidate addresses if the collateral ratio falls below 150%
  * @author The Everest team.
  */
 
 contract Hub is Ownable {
     // Contract addresses
-    Minter private minterContract;
-    Fund private fundContract;
+    CollateralFunds private fundContract;
     Storage private storageContract;
 
     address[] private authorizedAddresses;
-    mapping(string => address) private tickersymbolToAddress;
+    mapping(string => address) private tickersymbolToSynthContractAddress;
 
 
     modifier onlyAuthorizedAddresses() {
@@ -42,14 +41,6 @@ contract Hub is Ownable {
         authorizedAddresses.push(addr);
     }
 
-    /**
-     * @notice updates the address asssociated with an synthAsset
-     * @param tickerSymbol identifier of synthAsset
-     * @param addr new contract address of synthAsset 
-     */
-    function updateContractProxy(string memory tickerSymbol, address addr) public onlyAuthorizedAddresses{
-        tickersymbolToAddress[tickerSymbol] = addr; 
-    }
 
     /**
      * @notice mints synthAssets to a specific address
@@ -57,28 +48,24 @@ contract Hub is Ownable {
      * @param amount amount of token that gets minted
      * @param tickerSymbol identifier of which token gets minted
      */
-    function mintToken(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
-        //TODO: mintToken for a specific synthAsset. 
-        //How do we interact with contracts we don't have the interface for
-        //-> every synthAsset contract
-        //maybe heritage??
-        minterContract.mint(receiver, amount); 
+    function mintSynthAsset(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
+        SyntheticAsset(tickersymbolToSynthContractAddress[tickerSymbol]).mint(receiver, amount); 
     }
 
     /**
      * @notice sets the Minter contract address
      * @param _minterAddress address of Minter contract
      */
-    function setMinterContract(address _minterAddress) public onlyOwner{
-        minterContract = Minter(_minterAddress);
+    function setMinterContractAddress(address _minterAddress, string memory tickerSymbol) public onlyOwner{
+        tickersymbolToSynthContractAddress[tickerSymbol] = _minterAddress;
     }
 
     /**
      * @notice sets the Fund contract address
      * @param _fundAddress address of Fund contract
      */
-    function setFundContract(address _fundAddress) public onlyOwner{
-        fundContract = Fund(_fundAddress);
+    function setCollateralFundsContract(address _fundAddress) public onlyOwner{
+        fundContract = CollateralFunds(_fundAddress);
     }
 
     /**
@@ -97,10 +84,10 @@ contract Hub is Ownable {
      * @param collateralTickerSymbol identifier of token used for collateral#
      * @return collateral ratio
      */
-    function getCollateralRatio(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
+        function getCollateralRatioByAddress(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
          
          //Check amount funded
-         uint256 amountFunded = fundContract.getAmountFundedByAddress(msg.sender);
+         uint256 amountFunded = fundContract.getCollateralByAddress(msg.sender);
          uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
          uint256 collateralValue = amountFunded * collateralPrice;
 
@@ -121,12 +108,12 @@ contract Hub is Ownable {
 
 }
 
-interface Minter {
+interface SyntheticAsset {
     function mint(address to, uint256 amount) external;
 }
 
-interface Fund {
-    function getAmountFundedByAddress(address _addr) external view returns (uint256);
+interface CollateralFunds {
+    function getCollateralByAddress (address _addr) external view returns (uint256);
 }
 
 interface Storage {
