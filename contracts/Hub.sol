@@ -20,10 +20,8 @@ contract Hub is Ownable {
     mapping(string => address) private tickersymbolToSynthContractAddress;
     mapping(string => address) private tickerSymbolToTradingPool;
 
-    address USDCAddressEthereum = 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48;
+    address USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
     address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
-
-
 
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
@@ -115,7 +113,7 @@ contract Hub is Ownable {
     function createTradingPairOnUniswap(string memory tickerSymbol) external returns(address) {
         uint24 fee = 3000;
         address syntheticContract = tickersymbolToSynthContractAddress[tickerSymbol];
-        address newTradingPool = factory.createPool(syntheticContract, USDCAddressEthereum, fee);
+        address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
         tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
     }
 
