@@ -12,11 +12,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Hub is Ownable {
     // Contract addresses
-    CollateralFunds private fundContract;
-    Storage private storageContract;
+    ICollateralFunds private fundContract;
+    IStorage private storageContract;
+    IUniswapV3Factory private factory;
 
     address[] private authorizedAddresses;
     mapping(string => address) private tickersymbolToSynthContractAddress;
+    mapping(string => address) private tickerSymbolToTradingPool;
+
+    address USDCAddressEthereum = 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48;
+    address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+
 
 
     modifier onlyAuthorizedAddresses() {
@@ -49,7 +55,7 @@ contract Hub is Ownable {
      * @param tickerSymbol identifier of which token gets minted
      */
     function mintSynthAsset(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
-        SyntheticAsset(tickersymbolToSynthContractAddress[tickerSymbol]).mint(receiver, amount); 
+        ISyntheticAsset(tickersymbolToSynthContractAddress[tickerSymbol]).mint(receiver, amount); 
     }
 
     /**
@@ -65,7 +71,7 @@ contract Hub is Ownable {
      * @param _fundAddress address of Fund contract
      */
     function setCollateralFundsContract(address _fundAddress) public onlyOwner{
-        fundContract = CollateralFunds(_fundAddress);
+        fundContract = ICollateralFunds(_fundAddress);
     }
 
     /**
@@ -73,7 +79,7 @@ contract Hub is Ownable {
      * @param _storageAddress address of Storage contract
      */
     function setStorageContract(address _storageAddress) public onlyOwner{
-        storageContract = Storage(_storageAddress);
+        storageContract = IStorage(_storageAddress);
     }
 
     /**
@@ -106,20 +112,31 @@ contract Hub is Ownable {
          return collateralValue  / totalValueMinted;
     }
 
+    function createTradingPairOnUniswap(string memory tickerSymbol) external returns(address) {
+        uint24 fee = 3000;
+        address syntheticContract = tickersymbolToSynthContractAddress[tickerSymbol];
+        address newTradingPool = factory.createPool(syntheticContract, USDCAddressEthereum, fee);
+        tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
+    }
+
 }
 
-interface SyntheticAsset {
+interface ISyntheticAsset {
     function mint(address to, uint256 amount) external;
 }
 
-interface CollateralFunds {
+interface ICollateralFunds {
     function getCollateralByAddress (address _addr) external view returns (uint256);
 }
 
-interface Storage {
+interface IStorage {
     function getAssetPrice(string memory _asset) external view returns (uint256);
     
     function getAssetListOfUser(address _addr) external view returns (string[] memory);
 
     function getAssetAmountOfUser(address _addr, string memory tickerSymbol) external view returns (uint256);
+}
+
+interface IUniswapV3Factory {
+    function createPool(address _addr, address _stableCoinAddress, uint24 fee) external returns (address);
 }
