@@ -45,6 +45,15 @@ contract Hub is Ownable {
         authorizedAddresses.push(addr);
     }
 
+    function removeAuthorizedAddress(address addr) public onlyOwner {
+        for(uint i = 0; i < authorizedAddresses.length; i++) {
+            if(authorizedAddresses[i] == addr) {
+                delete authorizedAddresses[i];
+            }
+        }
+        
+    }
+
 
     /**
      * @notice mints synthAssets to a specific address
