@@ -57,11 +57,11 @@ contract Hub is Ownable {
     }
 
     /**
-     * @notice sets the Minter contract address
-     * @param _minterAddress address of Minter contract
+     * @notice sets the contract address of on sythetic asset (e.g synthTSLA)
+     * @param _synthAssetAddress contract address
      */
-    function setMinterContractAddress(address _minterAddress, string memory tickerSymbol) public onlyOwner{
-        tickersymbolToSynthContractAddress[tickerSymbol] = _minterAddress;
+    function setSynthAssetContractAddress(address _synthAssetAddress , string memory tickerSymbol) public onlyOwner{
+        tickersymbolToSynthContractAddress[tickerSymbol] = _synthAssetAddress ;
     }
 
     /**
