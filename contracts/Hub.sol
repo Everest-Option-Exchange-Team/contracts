@@ -12,16 +12,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Hub is Ownable {
     // Contract addresses
-    ICollateralFunds private fundContract;
-    IStorage private storageContract;
-    IUniswapV3Factory private factory;
+    ICollateralFunds public fundContract;
+    IStorage public storageContract;
+    IUniswapV3Factory public factory;
 
-    address[] private authorizedAddresses;
-    mapping(string => address) private tickersymbolToSynthContractAddress;
-    mapping(string => address) private tickerSymbolToTradingPool;
+    address[] public authorizedAddresses;
+    mapping(string => address) public tickersymbolToSynthContractAddress;
+    mapping(string => address) public tickerSymbolToTradingPool;
 
-    address USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
-    address uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+    address public USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
+    address public uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
