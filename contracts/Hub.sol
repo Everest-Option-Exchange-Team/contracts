@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./samples/AuthorizedAddresses.sol";
 
 /**
  * @title Hub Contract that coordinates Storage, Fund and Minter contract.
@@ -10,13 +10,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @author The Everest team.
  */
 
-contract Hub is Ownable {
+contract Hub is AuthorizedAddresses {
     // Contract addresses
     ICollateralFunds public fundContract;
     IStorage public storageContract;
     IUniswapV3Factory public factory;
 
-    address[] public authorizedAddresses;
     mapping(string => address) public tickersymbolToSynthAssetContractAddress;
     mapping(string => address) public tickerSymbolToTradingPool;
 
@@ -27,37 +26,8 @@ contract Hub is Ownable {
         return tickersymbolToSynthAssetContractAddress[tickerSymbol];
     }
 
-    modifier onlyAuthorizedAddresses() {
-        bool isAuthorized = false;
-        for(uint i = 0; i < authorizedAddresses.length; i++) {
-            if(authorizedAddresses[i] == msg.sender) {
-                isAuthorized = true;
-            }
-        }
-        require(isAuthorized);
-        _;
-    }
-
     constructor() {
     }
-
-    /**
-     * @notice Add an address to the list of authorized addresses
-     * @param addr address that gets added 
-     */
-    function addAuthorizedAddress(address addr) public onlyOwner{
-        authorizedAddresses.push(addr);
-    }
-
-    function removeAuthorizedAddress(address addr) public onlyOwner {
-        for(uint i = 0; i < authorizedAddresses.length; i++) {
-            if(authorizedAddresses[i] == addr) {
-                delete authorizedAddresses[i];
-            }
-        }
-        
-    }
-
 
     /**
      * @notice mints synthAssets to a specific address
