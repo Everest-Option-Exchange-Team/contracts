@@ -17,11 +17,15 @@ contract Hub is Ownable {
     IUniswapV3Factory public factory;
 
     address[] public authorizedAddresses;
-    mapping(string => address) public tickersymbolToSynthContractAddress;
+    mapping(string => address) public tickersymbolToSynthAssetContractAddress;
     mapping(string => address) public tickerSymbolToTradingPool;
 
     address public USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
     address public uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+
+    function getSynthAssetContractAddress (string memory tickerSymbol) public view returns (address) {
+        return tickersymbolToSynthAssetContractAddress[tickerSymbol];
+    }
 
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
@@ -62,7 +66,7 @@ contract Hub is Ownable {
      * @param tickerSymbol identifier of which token gets minted
      */
     function mintSynthAsset(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
-        ISyntheticAsset(tickersymbolToSynthContractAddress[tickerSymbol]).mint(receiver, amount); 
+        ISyntheticAsset(tickersymbolToSynthAssetContractAddress[tickerSymbol]).mint(receiver, amount); 
     }
 
     /**
@@ -70,7 +74,7 @@ contract Hub is Ownable {
      * @param _synthAssetAddress contract address
      */
     function setSynthAssetContractAddress(address _synthAssetAddress , string memory tickerSymbol) public onlyOwner{
-        tickersymbolToSynthContractAddress[tickerSymbol] = _synthAssetAddress ;
+        tickersymbolToSynthAssetContractAddress[tickerSymbol] = _synthAssetAddress ;
     }
 
     /**
@@ -121,11 +125,12 @@ contract Hub is Ownable {
 
     function createTradingPairOnUniswap(string memory tickerSymbol) external onlyOwner {
         uint24 fee = 3000;
-        address syntheticContract = tickersymbolToSynthContractAddress[tickerSymbol];
+        address syntheticContract = tickersymbolToSynthAssetContractAddress[tickerSymbol];
         address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
         tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
 
     }
+
 
 }
 
