@@ -110,11 +110,12 @@ contract Hub is Ownable {
          return collateralValue  / totalValueMinted;
     }
 
-    function createTradingPairOnUniswap(string memory tickerSymbol) external returns(address) {
+    function createTradingPairOnUniswap(string memory tickerSymbol) external onlyOwner {
         uint24 fee = 3000;
         address syntheticContract = tickersymbolToSynthContractAddress[tickerSymbol];
         address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
         tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
+
     }
 
 }

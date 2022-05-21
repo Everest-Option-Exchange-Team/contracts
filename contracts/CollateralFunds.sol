@@ -86,13 +86,12 @@ contract Fund {
      */
     function mintERC20Tokens(uint256 amountTokens) external {
         require(collateralFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
-        Controller controller = Controller(controllerAddress);
-        controller.mintToken(msg.sender, amountTokens);
+        Hub hub = Hub(controllerAddress);
+        hub.mintSynthAsset(msg.sender, amountTokens);
     }
 
 }
 
-interface Controller {
-    function mintToken(address reciever, uint256 amount) external;
-    function burnToken(address payer, uint256 amount) external;
+interface Hub {
+    function mintSynthAsset(address reciever, uint256 amount) external;
 }
