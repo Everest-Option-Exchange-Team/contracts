@@ -179,17 +179,15 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     /**
      * @notice Update the price of all the supported assets.
      * @dev Function triggered when checkUpkeep function returns upkeepNeeded == true.
-     * @param _performData the list of supported assets.
      */
-    function performUpkeep(bytes calldata _performData) external override {
+    function performUpkeep(bytes calldata) external override {
         // Re-validate the upkeep condition.
         if ((block.timestamp - lastTimeStamp) > interval ) {
             lastTimeStamp = block.timestamp;
-            string[] memory supportedAssets = abi.decode(_performData, (string[]));
-
+            
             // Update the price of all the supported assets.
-            for (uint256 i = 0; i < supportedAssets.length; i++) {
-                updateAssetPrice(supportedAssets[i]);
+            for (uint256 i = 0; i < assetList.length; i++) {
+                updateAssetPrice(assetList[i]);
             }
         }
     } 
