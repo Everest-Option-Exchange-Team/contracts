@@ -25,9 +25,13 @@ abstract contract AuthorizedAddresses is Ownable{
         require(isAuthorized);
         _;
     }
+    /*
+    * @notice Add a new account to the authorized addresses list.
+    * @param _addr the address of the account to add to the list.
+    */ 
 
-    function addAuthorizedAddress(address addr) public onlyOwner{
-        authorizedAddresses.push(addr);
+    function addAuthorizedAddress(address _addr) public onlyOwner{
+        authorizedAddresses.push(_addr);
     }
 
     function removeAuthorizedAddress(address addr) public onlyOwner {
