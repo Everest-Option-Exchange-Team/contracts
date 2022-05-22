@@ -71,26 +71,25 @@ contract Hub is AuthorizedAddresses {
      * @param collateralTickerSymbol identifier of token used for collateral#
      * @return collateral ratio
      */
-        function getCollateralRatioByAddress(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
-         
-         //Check amount funded
-         uint256 amountFunded = fundContract.getCollateralByAddress(msg.sender);
-         uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
-         uint256 collateralValue = amountFunded * collateralPrice;
+    function getCollateralRatioByAddress(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
+        //Check amount funded
+        uint256 amountFunded = fundContract.getCollateralByAddress(msg.sender);
+        uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
+        uint256 collateralValue = amountFunded * collateralPrice;
 
-         //Check assets minted
-         string[] memory assetsMinted = storageContract.getAssetListOfUser(addr);
-         // Total value of minted assets
-         uint256 totalValueMinted = 0;
-         //Sum up total value of minted assets
-         for(uint i = 0; i < assetsMinted.length; i++) {
-             uint256 assetAmount = storageContract.getAssetAmountOfUser(addr, assetsMinted[i]);
-             uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
-             uint256 assetValue = assetAmount * assetPrice;
-             totalValueMinted += assetValue;
-         }
-         //return collateral / totalValueMinted 
-         return collateralValue  / totalValueMinted;
+        //Check assets minted
+        string[] memory assetsMinted = storageContract.getAssetListOfUser(addr);
+        // Total value of minted assets
+        uint256 totalValueMinted = 0;
+        //Sum up total value of minted assets
+        for(uint i = 0; i < assetsMinted.length; i++) {
+            uint256 assetAmount = storageContract.getAssetAmountOfUser(addr, assetsMinted[i]);
+            uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
+            uint256 assetValue = assetAmount * assetPrice;
+            totalValueMinted += assetValue;
+        }
+        //return collateral / totalValueMinted 
+        return collateralValue  / totalValueMinted;
     }
 
     function createTradingPairOnUniswap(string memory tickerSymbol) external onlyOwner {
@@ -98,10 +97,7 @@ contract Hub is AuthorizedAddresses {
         address syntheticContract = tickersymbolToSynthAssetContractAddress[tickerSymbol];
         address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
         tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
-
     }
-
-
 }
 
 interface ISyntheticAsset {
