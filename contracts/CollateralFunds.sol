@@ -2,7 +2,7 @@
 pragma solidity ^0.8.7;
 
 /**
- * @title A simple contract to which you can send money and then withdraw it.
+ * @title A simple contract to which you can deposit or withdraw collateral funds, and invoke a synthAssetMint.
  * @author The Everest team.
  */
 contract Fund {
