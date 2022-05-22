@@ -22,6 +22,11 @@ contract Hub is AuthorizedAddresses {
     address public USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
     address public uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
+    /**
+     * @notice gets the synthAsset contract Address from its tickerSymbol
+     * @param tickerSymbol tickerSymbol to identify the synthAsset
+     * @return address address of synthAsset
+     */
     function getSynthAssetContractAddress (string memory tickerSymbol) public view returns (address) {
         return tickersymbolToSynthAssetContractAddress[tickerSymbol];
     }
