@@ -159,7 +159,7 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ bytes that will be used as input parameter when calling performUpkeep (here empty).
      */
     function checkUpkeep(bytes calldata) external view override returns (bool, bytes memory) {
-        return((block.timestamp - lastTimeStamp) > interval, abi.encode(assetList));
+        return((block.timestamp - lastTimeStamp) > interval, abi.encode('0x'));
     }
 
     /**
