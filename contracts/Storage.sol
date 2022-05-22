@@ -87,16 +87,6 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
         assetList.push(_asset);
         assetToPrice[_asset].exists = true;
     }
-    
-    /**
-     * @notice Return the price of an asset.
-     * @dev The asset must be supported by the contract.
-     * @param _asset the asset name.
-     * @return _ the price of the asset.
-     */
-    function getAssetPrice(string memory _asset) external view assetExists(_asset) returns (uint256) {
-        return assetToPrice[_asset].price;
-    }
 
     /**
      * @notice Return the list of supported assets.
