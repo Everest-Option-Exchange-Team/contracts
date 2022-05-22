@@ -32,18 +32,35 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
         bool exists;
     }
 
+    // Asset parameters.
     mapping(bytes32 => string) private requestIdToAsset;
     mapping(string => Asset) public assetToPrice;
     string[] public assetList;
 
-    event PriceUpdated(bytes32 indexed requestId, uint256 price);
-    event OracleAddressUpdated();
-    event JobIDUpdated();
-    event ApiKeyUpdated();
-    event Withdraw(address indexed addr, uint256 amount);
+    // Access-control parameters.
+    address public hubAddress;
 
+    // Events
+    event PriceUpdated(bytes32 indexed requestId, uint256 price);
+    event Withdraw(address indexed addr, uint256 amount);
+    event HubAddressUpdated(address oldAddress, address newAddress);
+    event OracleAddressUpdated(address oldAddress, address newAddress);
+    event JobIDUpdated(bytes32 oldId, bytes32 newId);
+    event ApiKeyUpdated(string oldApiKey, string newApiKey);
+
+    // Modifiers
     modifier onlyOwner() {
         require (msg.sender == owner);
+        _;
+    }
+
+    modifier onlyHub() {
+        require(msg.sender == hubAddress);
+        _;
+    }
+
+    modifier onlyHubAndOwner() {
+        require(msg.sender == hubAddress || msg.sender == owner);
         _;
     }
 
@@ -82,26 +99,29 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
      * @notice Add an asset to the list of supported assets.
      * @param _asset the asset name.
      */
-    function addAsset(string memory _asset) external onlyOwner {
+    function addAsset(string memory _asset) external onlyHubAndOwner {
         require(!assetToPrice[_asset].exists);
         assetList.push(_asset);
         assetToPrice[_asset].exists = true;
     }
 
     /**
-     * @notice Return the list of supported assets.
-     * @return _ the list of supported assets.
+     * @notice Withdraw all the contract funds to the owner wallet.
+     * @dev Avoid locking LINK tokens in the contract.
      */
-    function getAssetList() external view returns (string[] memory) {
-        return assetList;
+    function withdraw() external onlyOwner {
+        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
+        require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
     }
+
+    /**************************************** ChainLink External Adapters ****************************************/
 
     /**
      * @notice Update the asset price using the Alpha Vantage API.
      * @param _asset the asset name.
      $ @return requestId the id of the Chainlink request.
      */
-    function updateAssetPrice(string memory _asset) public onlyOwner assetExists(_asset) returns (bytes32 requestId) {
+    function updateAssetPrice(string memory _asset) public onlyHubAndOwner assetExists(_asset) returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
@@ -130,41 +150,7 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
         emit PriceUpdated(_requestId, _price);
     }
 
-    /**
-     * @notice Update the oracle address.
-     * @param _oracleAddress the new chainlink node operator address.
-     */
-    function updateOracleAddress(address _oracleAddress) external onlyOwner {
-        oracleAddress = _oracleAddress;
-        emit OracleAddressUpdated();
-    }
-
-    /**
-     * @notice Update the job ID.
-     * @param _jobId the new job ID.
-     */
-    function updateJobId(bytes32 _jobId) external onlyOwner {
-        jobId = _jobId;
-        emit JobIDUpdated();
-    }
-
-    /**
-     * @notice Update the alpha vantage api key.
-     * @param _apiKey the new api key.
-     */
-    function updateApiKey(string memory _apiKey) external onlyOwner {
-        apiKey = _apiKey;
-        emit ApiKeyUpdated();
-    }
-
-    /**
-     * @notice Withdraw all the contract funds to the owner wallet.
-     * @dev Avoid locking LINK tokens in the contract.
-     */
-    function withdraw() external onlyOwner {
-        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-        require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
-    }
+    /**************************************** ChainLink Keepers ****************************************/
 
     /**
      * @notice Check if the performUpkeep function should be executed.
@@ -190,5 +176,53 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
                 updateAssetPrice(assetList[i]);
             }
         }
-    } 
+    }
+
+    /**************************************** Getters ****************************************/
+
+    /**
+     * @notice Return the list of supported assets.
+     * @return _ the list of supported assets.
+     */
+    function getAssetList() external view returns (string[] memory) {
+        return assetList;
+    }
+
+    /**************************************** Setters ****************************************/
+
+    /**
+     * @notice Update the hub address.
+     * @param _hubAddress the new hub address.
+     */
+    function setHubAddress(address _hubAddress) external onlyOwner {
+        emit HubAddressUpdated(hubAddress, _hubAddress);
+        hubAddress = _hubAddress;
+    }
+
+    /**
+     * @notice Update the oracle address.
+     * @param _oracleAddress the new chainlink node operator address.
+     */
+    function setOracleAddress(address _oracleAddress) external onlyOwner {
+        emit OracleAddressUpdated(oracleAddress, _oracleAddress);
+        oracleAddress = _oracleAddress;
+    }
+
+    /**
+     * @notice Update the job ID.
+     * @param _jobId the new job ID.
+     */
+    function setJobId(bytes32 _jobId) external onlyOwner {
+        emit JobIDUpdated(jobId, _jobId);
+        jobId = _jobId;
+    }
+
+    /**
+     * @notice Update the alpha vantage api key.
+     * @param _apiKey the new api key.
+     */
+    function setApiKey(string memory _apiKey) external onlyOwner {
+        emit ApiKeyUpdated(apiKey, _apiKey);
+        apiKey = _apiKey;
+    }
 }
