@@ -11,6 +11,11 @@ contract Fund {
     address[] public funders;
     address hubAddress;
 
+
+    /**
+     * @notice constructor
+     * @param _hubAddress address of the Hub contract.
+     */
     constructor(address _hubAddress) {
         hubAddress = _hubAddress;
     }
