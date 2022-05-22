@@ -12,7 +12,9 @@ abstract contract AuthorizedAddresses is Ownable{
 
     address[] public authorizedAddresses;
 
-
+/*
+ * @notice Modifier that checks that an account is part of the authorized addresses list.
+ */
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
         for(uint i = 0; i < authorizedAddresses.length; i++) {
