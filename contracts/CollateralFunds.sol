@@ -9,10 +9,10 @@ contract Fund {
     mapping(address => uint256) public collateralFundedByAddress;
     uint256 public totalCollateral ;
     address[] public funders;
-    address controllerAddress;
+    address hubAddress;
 
-    constructor(address _controllerAddress) {
-        controllerAddress = _controllerAddress;
+    constructor(address _hubAddress) {
+        hubAddress = _hubAddress;
     }
 
     /**
@@ -80,13 +80,13 @@ contract Fund {
     }
 
     /**
-     * @notice Check if user deposited required amount. Sends information to controller.
+     * @notice Check if user deposited required amount. Sends information to the hub.
      * @param amountTokens amountToken user wants to Mint
      * @dev Firstly: 1 Token = Avax, Later: 1 Token = c ratio * real asset price
      */
     function mintERC20Tokens(uint256 amountTokens) external {
         require(collateralFundedByAddress[msg.sender] >= amountTokens * 1 ether, "Not enough capital deposited");
-        Hub hub = Hub(controllerAddress);
+        Hub hub = Hub(hubAddress);
         hub.mintSynthAsset(msg.sender, amountTokens);
     }
 
