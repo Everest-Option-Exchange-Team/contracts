@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 import "./samples/AuthorizedAddresses.sol";
 
 /**
- * @title Hub Contract that coordinates Storage, Fund and Minter contract.
+ * @title Hub Contract that coordinates Storage, Fund and Factory contract.
  * @dev The contract can mint new synthtic assets (erc20 token), check the collateral ratio of addresses
  * and liquidate addresses if the collateral ratio falls below 150%
  * @author The Everest team.

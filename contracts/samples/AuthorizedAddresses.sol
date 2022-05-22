@@ -12,9 +12,21 @@ abstract contract AuthorizedAddresses is Ownable{
 
     address[] public authorizedAddresses;
 
-/*
- * @notice Modifier that checks that an account is part of the authorized addresses list.
- */
+    /**
+    * @notice Event triggered when an account is added to the authorized addresses list.
+    * @param addr the address of the account to add to the list.
+    */
+    event AuthorizationGranted(address indexed addr);
+
+    /**
+    * @notice Event triggered when an account is removed from the authorized addresses list.
+    * @param addr the address of the account to remove from the list.
+    */
+    event AuthorizationRevoked(address indexed addr);
+
+    /*
+    * @notice Modifier that checks that an account is part of the authorized addresses list.
+    */
     modifier onlyAuthorizedAddresses() {
         bool isAuthorized = false;
         for(uint i = 0; i < authorizedAddresses.length; i++) {
@@ -25,22 +37,26 @@ abstract contract AuthorizedAddresses is Ownable{
         require(isAuthorized);
         _;
     }
+
     /*
     * @notice Add a new account to the authorized addresses list.
     * @param _addr the address of the account to add to the list.
     */ 
-
     function addAuthorizedAddress(address _addr) public onlyOwner{
         authorizedAddresses.push(_addr);
+        emit AuthorizationGranted(_addr);
     }
 
-    function removeAuthorizedAddress(address addr) public onlyOwner {
+    /*
+    * @notice Remove an account from the authorized addresses list.
+    * @param _addr the address of the account to remove from the list.
+    */ 
+    function removeAuthorizedAddress(address _addr) public onlyOwner {
         for(uint i = 0; i < authorizedAddresses.length; i++) {
-            if(authorizedAddresses[i] == addr) {
+            if(authorizedAddresses[i] == _addr) {
                 delete authorizedAddresses[i];
+                emit AuthorizationRevoked(_addr);
             }
-        }
-        
+        }  
     }
-
 }
