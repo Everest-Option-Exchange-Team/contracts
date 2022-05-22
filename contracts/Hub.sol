@@ -26,9 +26,6 @@ contract Hub is AuthorizedAddresses {
         return tickersymbolToSynthAssetContractAddress[tickerSymbol];
     }
 
-    constructor() {
-    }
-
     /**
      * @notice mints synthAssets to a specific address
      * @param receiver address to which token gets minted
