@@ -4,6 +4,10 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+ * @notice Contract module that allows children to implement access control mechanisms.
+ */
+
 abstract contract AuthorizedAddresses is Ownable{
 
     address[] public authorizedAddresses;
