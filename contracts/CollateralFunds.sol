@@ -50,7 +50,7 @@ contract CollateralFunds {
      * @notice Withdraw money from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
-    function withdraw(uint256 _amount) external payable {
+    function withdrawCollateral(uint256 _amount) external payable {
         require(_amount <= collateralFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
         collateralFundedByAddress[msg.sender] -= _amount;
         totalCollateral  -= _amount;
