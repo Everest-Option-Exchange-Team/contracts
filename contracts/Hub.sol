@@ -38,7 +38,7 @@ contract Hub is AuthorizedAddresses {
      * @param tickerSymbol identifier of which token gets minted
      */
     function mintSynthAsset(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
-        ISyntheticAsset(tickersymbolToSynthAssetContractAddress[tickerSymbol]).mint(receiver, amount); 
+        Factory(tickersymbolToSynthAssetContractAddress[tickerSymbol]).mint(receiver, amount); 
     }
 
     /**
@@ -102,7 +102,7 @@ contract Hub is AuthorizedAddresses {
     }
 }
 
-interface ISyntheticAsset {
+interface Factory {
     function mint(address to, uint256 amount) external;
 }
 
