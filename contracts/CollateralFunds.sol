@@ -22,19 +22,19 @@ contract CollateralFunds {
 
     /**
      * @notice Event triggered when user deposits funds to the contract.
-     * @param addr the address of the user.
-     * @param amount the amount deposited by the user during the transaction.
-     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     * @param _addr the address of the user.
+     * @param _amount the amount deposited by the user during the transaction.
+     * @param _balance the user balance (funds deposited by the user and not yet withdrawn).
      */
-    event Deposit(address indexed addr, uint256 amount, uint256 balance);
+    event Deposit(address indexed _addr, uint256 _amount, uint256 _balance);
 
     /**
      * @notice Event triggered when user withdraws funds from the contract.
-     * @param addr the address of the user.
-     * @param amount the amount withdrawn by the user during the transaction.
-     * @param balance the user balance (funds deposited by the user and not yet withdrawn).
+     * @param _addr the address of the user.
+     * @param _amount the amount withdrawn by the user during the transaction.
+     * @param _balance the user balance (funds deposited by the user and not yet withdrawn).
      */
-    event Withdraw(address indexed addr, uint256 amount, uint256 balance);
+    event Withdraw(address indexed _addr, uint256 _amount, uint256 _balance);
 
     /**
      * @notice Send money to the fund.
@@ -98,5 +98,5 @@ contract CollateralFunds {
 }
 
 interface Hub {
-    function mintSynthAsset(address reciever, uint256 amount) external;
+    function mintSynthAsset(address _reciever, uint256 _amount) external;
 }
