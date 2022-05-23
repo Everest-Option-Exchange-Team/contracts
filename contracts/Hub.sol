@@ -24,21 +24,21 @@ contract Hub is AuthorizedAddresses {
 
     /**
      * @notice gets the synthAsset contract Address from its tickerSymbol
-     * @param tickerSymbol tickerSymbol to identify the synthAsset
-     * @return address address of synthAsset
+     * @param _tickerSymbol tickerSymbol to identify the synthAsset
+     * @return _addr address of synthAsset
      */
-    function getSynthAssetContractAddress (string memory tickerSymbol) public view returns (address) {
-        return tickersymbolToSynthAssetContractAddress[tickerSymbol];
+    function getSynthAssetContractAddress (string memory _tickerSymbol) public view returns (address) {
+        return tickersymbolToSynthAssetContractAddress[_tickerSymbol];
     }
 
     /**
      * @notice mints synthAssets to a specific address
-     * @param receiver address to which token gets minted
-     * @param amount amount of token that gets minted
-     * @param tickerSymbol identifier of which token gets minted
+     * @param _receiver address to which token gets minted
+     * @param _amount amount of token that gets minted
+     * @param _tickerSymbol identifier of which token gets minted
      */
-    function mintSynthAsset(address receiver, uint256 amount, string memory tickerSymbol) public onlyAuthorizedAddresses{
-        Factory(tickersymbolToSynthAssetContractAddress[tickerSymbol]).mint(receiver, amount); 
+    function mintSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public onlyAuthorizedAddresses{
+        Factory(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).mint(_receiver, _amount); 
     }
 
     /**
@@ -69,9 +69,9 @@ contract Hub is AuthorizedAddresses {
      * @notice checks the collateral ratio of an address.
      * @dev for all assets combined. No individual / isolated positions for now.
      * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral
-     * @param addr address of user whom collateral ratio is to be checked.
-     * @param collateralTickerSymbol identifier of token used for collateral#
-     * @return collateral ratio
+     * @param _addr address of user whom collateral ratio is to be checked.
+     * @param _collateralTickerSymbol identifier of token used for collateral#
+     * @return _collateral ratio
      */
     function getCollateralRatioByAddress(address _addr, string memory _collateralTickerSymbol) public view returns (uint256) {
         //Check amount funded
@@ -94,16 +94,16 @@ contract Hub is AuthorizedAddresses {
         return collateralValue  / totalValueMinted;
     }
 
-    function createTradingPairOnUniswap(string memory tickerSymbol) external onlyOwner {
+    function createTradingPairOnUniswap(string memory _tickerSymbol) external onlyOwner {
         uint24 fee = 3000;
-        address syntheticContract = tickersymbolToSynthAssetContractAddress[tickerSymbol];
+        address syntheticContract = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
         address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
-        tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
+        tickerSymbolToTradingPool[_tickerSymbol] = newTradingPool;
     }
 }
 
 interface Factory {
-    function mint(address to, uint256 amount) external;
+    function mint(address _to, uint256 _amount) external;
 }
 
 interface ICollateralFunds {
@@ -115,9 +115,9 @@ interface IStorage {
     
     function getAssetListOfUser(address _addr) external view returns (string[] memory);
 
-    function getAssetAmountOfUser(address _addr, string memory tickerSymbol) external view returns (uint256);
+    function getAssetAmountOfUser(address _addr, string memory _tickerSymbol) external view returns (uint256);
 }
 
 interface IUniswapV3Factory {
-    function createPool(address _addr, address _stableCoinAddress, uint24 fee) external returns (address);
+    function createPool(address _addr, address _stableCoinAddress, uint24 _fee) external returns (address);
 }
