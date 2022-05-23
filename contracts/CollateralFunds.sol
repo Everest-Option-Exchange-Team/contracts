@@ -39,7 +39,7 @@ contract CollateralFunds {
     /**
      * @notice Send money to the fund.
      */
-    function fund() external payable {
+    function fundCollateral() external payable {
         collateralFundedByAddress[msg.sender] += msg.value;
         totalCollateral  += msg.value;
         funders.push(msg.sender);
