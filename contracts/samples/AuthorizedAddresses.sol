@@ -14,15 +14,15 @@ abstract contract AuthorizedAddresses is Ownable{
 
     /**
     * @notice Event triggered when an account is added to the authorized addresses list.
-    * @param addr the address of the account to add to the list.
+    * @param _addr the address of the account to add to the list.
     */
-    event AuthorizationGranted(address indexed addr);
+    event AuthorizationGranted(address indexed _addr);
 
     /**
     * @notice Event triggered when an account is removed from the authorized addresses list.
-    * @param addr the address of the account to remove from the list.
+    * @param _addr the address of the account to remove from the list.
     */
-    event AuthorizationRevoked(address indexed addr);
+    event AuthorizationRevoked(address indexed _addr);
 
     /*
     * @notice Modifier that checks that an account is part of the authorized addresses list.
