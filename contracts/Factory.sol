@@ -13,26 +13,26 @@ contract Factory is ERC20, AuthorizedAddresses {
 
     /**
      * @notice sets name and tickerSymbol of new ERC20 token
-     * @param name name of new ERC20 token
-     * @param symbol tickerSymbol of new ERC20 token
+     * @param _name name of new ERC20 token
+     * @param _symbol tickerSymbol of new ERC20 token
      */
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {}
 
     /**
      * @notice mints new tokens
-     * @param to address where tokens get minted to
-     * @param amount amount of tokens that get minted
+     * @param _to address where tokens get minted to
+     * @param _amount amount of tokens that get minted
      */
-    function mint(address to, uint256 amount) public onlyAuthorizedAddresses {
-        _mint(to, amount);
+    function mint(address _to, uint256 _amount) public onlyAuthorizedAddresses {
+        _mint(_to, _amount);
     }
     /**
      * @notice burns new tokens
-     * @param from address where tokens get burned from
-     * @param amount amount of tokens that get burned
+     * @param _from address where tokens get burned from
+     * @param _amount amount of tokens that get burned
      */
-    function burn(address from, uint amount) public onlyAuthorizedAddresses {
-        _burn(from, amount);
+    function burn(address _from, uint _amount) public onlyAuthorizedAddresses {
+        _burn(_from, _amount);
     }
 }
 
