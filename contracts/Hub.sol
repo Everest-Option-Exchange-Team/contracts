@@ -68,9 +68,9 @@ contract Hub is AuthorizedAddresses {
     /**
      * @notice checks the collateral ratio of an address.
      * @dev for all assets combined. No individual / isolated positions for now.
-     * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral
+     * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral.
      * @param _addr address of user whom collateral ratio is to be checked.
-     * @param _collateralTickerSymbol identifier of token used for collateral#
+     * @param _collateralTickerSymbol identifier of token used for collateral.
      * @return _collateral ratio
      */
     function getCollateralRatioByAddress(address _addr, string memory _collateralTickerSymbol) public view returns (uint256) {
@@ -94,6 +94,10 @@ contract Hub is AuthorizedAddresses {
         return collateralValue  / totalValueMinted;
     }
 
+    /**
+     * @notice creates liquidity pool for a specific synthAsset on Uniswap
+     * @param _tickerSymbol idendifier of synthAsset
+     */
     function createTradingPairOnUniswap(string memory _tickerSymbol) external onlyOwner {
         uint24 fee = 3000;
         address syntheticContract = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
