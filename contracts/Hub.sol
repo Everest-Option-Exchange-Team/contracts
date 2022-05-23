@@ -73,19 +73,19 @@ contract Hub is AuthorizedAddresses {
      * @param collateralTickerSymbol identifier of token used for collateral#
      * @return collateral ratio
      */
-    function getCollateralRatioByAddress(address addr, string memory collateralTickerSymbol) public view returns (uint256) {
+    function getCollateralRatioByAddress(address _addr, string memory _collateralTickerSymbol) public view returns (uint256) {
         //Check amount funded
-        uint256 amountFunded = fundContract.getCollateralByAddress(msg.sender);
-        uint256 collateralPrice = storageContract.getAssetPrice(collateralTickerSymbol);
+        uint256 amountFunded = fundContract.getCollateralByAddress(_addr);
+        uint256 collateralPrice = storageContract.getAssetPrice(_collateralTickerSymbol);
         uint256 collateralValue = amountFunded * collateralPrice;
 
         //Check assets minted
-        string[] memory assetsMinted = storageContract.getAssetListOfUser(addr);
+        string[] memory assetsMinted = storageContract.getAssetListOfUser(_addr);
         // Total value of minted assets
         uint256 totalValueMinted = 0;
         //Sum up total value of minted assets
         for(uint i = 0; i < assetsMinted.length; i++) {
-            uint256 assetAmount = storageContract.getAssetAmountOfUser(addr, assetsMinted[i]);
+            uint256 assetAmount = storageContract.getAssetAmountOfUser(_addr, assetsMinted[i]);
             uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
             uint256 assetValue = assetAmount * assetPrice;
             totalValueMinted += assetValue;
