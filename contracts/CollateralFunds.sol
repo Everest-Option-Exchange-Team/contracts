@@ -5,7 +5,7 @@ pragma solidity ^0.8.7;
  * @title A simple contract to which you can deposit or withdraw collateral funds, and invoke a synthAssetMint.
  * @author The Everest team.
  */
-contract Fund {
+contract CollateralFunds {
     mapping(address => uint256) public collateralFundedByAddress;
     uint256 public totalCollateral ;
     address[] public funders;
