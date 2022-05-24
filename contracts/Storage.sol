@@ -182,6 +182,16 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
         return assetList;
     }
 
+    /**
+     * @notice Return the price of an asset.
+     * @param _asset the asset name.
+     * @return _ the price of the asset.
+     */
+    function getAssetPrice(string memory _asset) external view returns (uint256) {
+        require(assetToPrice[_asset].exists);
+        return assetToPrice[_asset].price;
+    } 
+
     /**************************************** Setters ****************************************/
 
     /**
