@@ -51,8 +51,13 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     address public aggregatorAddress;
     address public keepersRegistryAddress;
 
+    // Pause parameter.
+    bool public paused;
+
     // Events
     event PriceUpdated(bytes32 indexed requestId, uint256 price);
+    event Paused();
+    event Unpaused();
     event Withdraw(address indexed addr, uint256 amount);
     event HubAddressUpdated(address oldAddress, address newAddress);
     event AggregatorAddressUpdated(address oldAddress, address newAddress);
@@ -190,6 +195,7 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ bytes that will be used as input parameter when calling performUpkeep (here empty).
      */
     function checkUpkeep(bytes calldata) external view override returns (bool, bytes memory) {
+        require(!paused);
         return((block.timestamp - lastTimeStamp) > interval, abi.encode('0x'));
     }
 
@@ -210,6 +216,28 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
                 updateAssetPrice(assetList[i]);
             }
         }
+    }
+
+    /**************************************** Pause / Unpause ****************************************/
+
+    /**
+     * @notice Pause the contract: prices won't be updated by Chainlink keepers until
+     * the contract is unpaused by the owner.
+     * @dev This method can be used to prevent errors.
+     * Also note that the prices can still be updated manually by the owner.
+     */
+    function pause() external onlyOwner {
+        paused = true;
+        emit Paused();
+    }
+
+    /**
+     * @notice Unpause the contract: prices will now be updated by Chainlink keepers until
+     * the contract is paused by the owner.
+     */
+    function unpause() external onlyOwner {
+        paused = false;
+        emit Unpaused();
     }
 
     /**************************************** Getters ****************************************/
