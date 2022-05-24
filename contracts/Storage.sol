@@ -39,11 +39,13 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
 
     // Access-control parameters.
     address public hubAddress;
+    address public keepersRegistryAddress;
 
     // Events
     event PriceUpdated(bytes32 indexed requestId, uint256 price);
     event Withdraw(address indexed addr, uint256 amount);
     event HubAddressUpdated(address oldAddress, address newAddress);
+    event KeepersRegistryAddressUpdated(address oldAddress, address newAddress);
     event OracleAddressUpdated(address oldAddress, address newAddress);
     event JobIDUpdated(bytes32 oldId, bytes32 newId);
     event ApiKeyUpdated(string oldApiKey, string newApiKey);
@@ -51,21 +53,6 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     // Modifiers
     modifier onlyOwner() {
         require (msg.sender == owner);
-        _;
-    }
-
-    modifier onlyHub() {
-        require(msg.sender == hubAddress);
-        _;
-    }
-
-    modifier onlyHubAndOwner() {
-        require(msg.sender == hubAddress || msg.sender == owner);
-        _;
-    }
-
-    modifier assetExists(string memory _asset) {
-        require(assetToPrice[_asset].exists);
         _;
     }
 
@@ -98,9 +85,12 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     /**
      * @notice Add an asset to the list of supported assets.
      * @param _asset the asset name.
+     * @dev The method can only be called by the hub or the owner.
      */
-    function addAsset(string memory _asset) external onlyHubAndOwner {
+    function addAsset(string memory _asset) external {
+        require(msg.sender == hubAddress || msg.sender == owner);
         require(!assetToPrice[_asset].exists);
+
         assetList.push(_asset);
         assetToPrice[_asset].exists = true;
     }
@@ -120,8 +110,12 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
      * @notice Update the asset price using the Alpha Vantage API.
      * @param _asset the asset name.
      $ @return requestId the id of the Chainlink request.
+     * @dev The method can only be called by the keepers registry or the owner.
      */
-    function updateAssetPrice(string memory _asset) public onlyHubAndOwner assetExists(_asset) returns (bytes32 requestId) {
+    function updateAssetPrice(string memory _asset) public returns (bytes32 requestId) {
+        require(msg.sender == keepersRegistryAddress || msg.sender == owner);
+        require(assetToPrice[_asset].exists);
+
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
             "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=",
@@ -197,6 +191,15 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     function setHubAddress(address _hubAddress) external onlyOwner {
         emit HubAddressUpdated(hubAddress, _hubAddress);
         hubAddress = _hubAddress;
+    }
+
+    /**
+     * @notice Update the keepers registry address.
+     * @param _keepersRegistryAddress the new keepers registry address.
+     */
+    function setKeepersRegistryAddress(address _keepersRegistryAddress) external onlyOwner {
+        emit KeepersRegistryAddressUpdated(keepersRegistryAddress, _keepersRegistryAddress);
+        keepersRegistryAddress = _keepersRegistryAddress;
     }
 
     /**
