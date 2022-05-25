@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 /**
- * @title BasePriceTracker contract that retrieves USDC and asset prices.
+ * @title PriceTrackerV1 contract that retrieves USDC and asset prices.
  * @dev The contract uses multiple oracle Chainlink products to expose the most reliable data possible.
  * Of course, the ideal would be to diversify the sources and thus to explore the possibilities of other
  * oracles but that was well beyond the scope of the hackathon.
@@ -16,7 +16,7 @@ import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
  * - Chainlnk Keepers to update the prices periodically.
  * @author The Everest team.
  */
-contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
+contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     using Chainlink for Chainlink.Request;
 
     // Chainlink data feeds parameters.
