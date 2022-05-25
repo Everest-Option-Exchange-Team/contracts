@@ -31,11 +31,11 @@ async function main() {
 		aggregatorAddress = aggregatorContract.address;
 
 		// 3. Deploy the MockOracle contract.
-		const mockOracleContractFactory = await hre.ethers.getContractFactory("MockOracle");
-		mockOracleContract = await mockOracleContractFactory.deploy(linkTokenContract.address);
-		await mockOracleContract.deployed();
-		console.log("MockOracle contract deployed to:", mockOracleContract.address);
-		oracleAddress = mockOracleContract.address;
+		const oracleContractFactory = await hre.ethers.getContractFactory("MockOracle");
+		const oracleContract = await oracleContractFactory.deploy(linkTokenContract.address);
+		await oracleContract.deployed();
+		console.log("MockOracle contract deployed to:", oracleContract.address);
+		oracleAddress = oracleContract.address;
 
 		// Set a random bytes32 job ID.
 		jobId = hre.ethers.utils.randomBytes(32);
