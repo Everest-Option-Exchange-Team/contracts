@@ -82,8 +82,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _updateInterval the update interval of the supported asset prices (in seconds).
      */
     constructor(address _linkAddress, address _aggregatorAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey, uint256 _updateInterval) {
-        require(_aggregatorAddress != address(0), "The aggregator address cannot be empty");
-        require(_oracleAddress != address(0), "The oracle address cannot be empty");
+        require(_aggregatorAddress != address(0), "The aggregator address cannot be null");
+        require(_oracleAddress != address(0), "The oracle address cannot be null");
         require(_jobId.length > 0, "The job ID cannot be empty");
         require(bytes(_apiKey).length > 0, "The API key cannot be empty");
         require(_updateInterval > 0, "The update interval cannot be equal to zero");
@@ -203,7 +203,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ bytes that will be used as input parameter when calling performUpkeep (here empty).
      */
     function checkUpkeep(bytes calldata) external view override returns (bool, bytes memory) {
-        require(!paused, "The contract is paused: the automatic update of prices is stopped");
+        require(!paused, "The contract is paused and the automatic update of prices is stopped");
+
         return((block.timestamp - lastTimeStamp) > interval, abi.encode('0x'));
     }
 
@@ -293,6 +294,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _hubAddress the new hub address.
      */
     function setHubAddress(address _hubAddress) external onlyOwner {
+        require(_hubAddress != address(0), "The hub address cannot be null");
+
         emit HubAddressUpdated(hubAddress, _hubAddress);
         hubAddress = _hubAddress;
     }
@@ -302,6 +305,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _aggregatorAddress the new USDC/USD aggregator address.
      */
     function setAggregatorAddress(address _aggregatorAddress) external onlyOwner {
+        require(_aggregatorAddress != address(0), "The aggregator address cannot be null");
+
         emit AggregatorAddressUpdated(aggregatorAddress, _aggregatorAddress);
         aggregatorAddress = _aggregatorAddress;
         usdcPriceFeed = AggregatorV3Interface(_aggregatorAddress);
@@ -312,6 +317,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _keepersRegistryAddress the new keepers registry address.
      */
     function setKeepersRegistryAddress(address _keepersRegistryAddress) external onlyOwner {
+        require(_keepersRegistryAddress != address(0), "The keepers registry address cannot be null");
+
         emit KeepersRegistryAddressUpdated(keepersRegistryAddress, _keepersRegistryAddress);
         keepersRegistryAddress = _keepersRegistryAddress;
     }
@@ -321,6 +328,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _oracleAddress the new chainlink node operator address.
      */
     function setOracleAddress(address _oracleAddress) external onlyOwner {
+        require(_oracleAddress != address(0), "The oracle address cannot be null");
+
         emit OracleAddressUpdated(oracleAddress, _oracleAddress);
         oracleAddress = _oracleAddress;
     }
@@ -330,6 +339,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _jobId the new job ID.
      */
     function setJobId(bytes32 _jobId) external onlyOwner {
+        require(_jobId.length > 0, "The job ID cannot be empty");
+
         emit JobIDUpdated(jobId, _jobId);
         jobId = _jobId;
     }
@@ -339,6 +350,8 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _apiKey the new api key.
      */
     function setApiKey(string memory _apiKey) external onlyOwner {
+        require(bytes(_apiKey).length > 0, "The API key cannot be empty");
+
         emit ApiKeyUpdated(apiKey, _apiKey);
         apiKey = _apiKey;
     }
