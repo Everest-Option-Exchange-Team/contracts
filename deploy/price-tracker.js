@@ -49,8 +49,8 @@ async function main() {
 	}
 
 	// Deploy the contract.
-	const contractFactory = await hre.ethers.getContractFactory("PriceTrackerV1");
-	const contract = await contractFactory.deploy(
+	const priceTrackerFactory = await hre.ethers.getContractFactory("PriceTrackerV1");
+	const priceTrackerContract = await priceTrackerFactory.deploy(
 		linkTokenAddress,
 		aggregatorAddress,
 		oracleAddress,
@@ -58,11 +58,11 @@ async function main() {
 		apiKey,
 		updateInterval
 	);
-	await contract.deployed();
-	console.log("PriceTrackerV1 contract deployed to:", contract.address);
+	await priceTrackerContract.deployed();
+	console.log("PriceTrackerV1 contract deployed to:", priceTrackerContract.address);
 
 	// Verify the contract.
-	console.log(`Verify with: $ npx hardhat verify ${contract.address} ${linkTokenAddress} ${aggregatorAddress} ${oracleAddress} ${jobId} ${apiKey} ${updateInterval} --contract contracts/PriceTrackerV1.sol:PriceTrackerV1 --network ${hre.network.name}`);
+	console.log(`Verify with: $ npx hardhat verify ${priceTrackerContract.address} ${linkTokenAddress} ${aggregatorAddress} ${oracleAddress} ${jobId} ${apiKey} ${updateInterval} --contract contracts/PriceTrackerV1.sol:PriceTrackerV1 --network ${hre.network.name}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
