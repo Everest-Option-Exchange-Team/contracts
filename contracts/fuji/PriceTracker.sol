@@ -9,6 +9,7 @@ import "../base/BasePriceTracker.sol";
  * we had to use our custom node. That's why we started working with https://linkwellnodes.io/ node operator.
  * @author The Everest team.
  */
+ //slither-disable-next-line name-reused
 contract PriceTracker is BasePriceTracker {
     /**
      * @notice Initialise the contract.

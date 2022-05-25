@@ -7,6 +7,7 @@ import "../base/BasePriceTracker.sol";
  * @title Contract that retrieves USDC and asset prices on the Kovan testnet.
  * @author The Everest team.
  */
+ //slither-disable-next-line name-reused
 contract PriceTracker is BasePriceTracker {
     /**
      * @notice Initialise the contract.
