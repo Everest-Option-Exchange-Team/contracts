@@ -68,7 +68,7 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
 
     // Modifiers
     modifier onlyOwner() {
-        require (msg.sender == owner);
+        require (msg.sender == owner, "Only the owner can call this method");
         _;
     }
 
@@ -82,6 +82,12 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @param _updateInterval the update interval of the supported asset prices (in seconds).
      */
     constructor(address _linkAddress, address _aggregatorAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey, uint256 _updateInterval) {
+        require(_aggregatorAddress != address(0), "The aggregator address cannot be empty");
+        require(_oracleAddress != address(0), "The oracle address cannot be empty");
+        require(_jobId.length > 0, "The job ID cannot be empty");
+        require(bytes(_apiKey).length > 0, "The API key cannot be empty");
+        require(_updateInterval > 0, "The update interval cannot be equal to zero");
+        
         owner = msg.sender;
 
         // Link token address.
@@ -111,8 +117,9 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @dev The method can only be called by the hub or the owner.
      */
     function addAsset(string memory _asset) external {
-        require(msg.sender == hubAddress || msg.sender == owner);
-        require(!assetToPrice[_asset].exists);
+        require(msg.sender == hubAddress || msg.sender == owner, "Only the hub and the owner can call this method");
+        require(bytes(_asset).length > 0, "The asset name cannot be empty");
+        require(!assetToPrice[_asset].exists, "The asset must not already be registered in the contract");
 
         assetList.push(_asset);
         assetToPrice[_asset].exists = true;
@@ -134,7 +141,7 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @dev The method can only be called by the keepers registry or the owner.
      */
     function updateUSDCPrice() public {
-        require(msg.sender == keepersRegistryAddress || msg.sender == owner);
+        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
 
         (
             /*uint80 roundID*/,
@@ -155,8 +162,9 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @dev The method can only be called by the keepers registry or the owner.
      */
     function updateAssetPrice(string memory _asset) public returns (bytes32 requestId) {
-        require(msg.sender == keepersRegistryAddress || msg.sender == owner);
-        require(assetToPrice[_asset].exists);
+        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
+        require(bytes(_asset).length > 0, "The asset name cannot be empty");
+        require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
 
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         string memory url = string(abi.encodePacked(
@@ -195,17 +203,26 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ bytes that will be used as input parameter when calling performUpkeep (here empty).
      */
     function checkUpkeep(bytes calldata) external view override returns (bool, bytes memory) {
-        require(!paused);
+        require(!paused, "The contract is paused: the automatic update of prices is stopped");
         return((block.timestamp - lastTimeStamp) > interval, abi.encode('0x'));
     }
 
     /**
      * @notice Update the price of all the supported assets.
-     * @dev Function triggered when checkUpkeep function returns upkeepNeeded == true.
+     * @dev
+     * - The method can only be called by the keepers registry or the owner.
+     * - The method is triggered when the checkUpkeep function returns true.
+     * - Timestamps are used for comparison which is not optimal because it can be manipulated by miners.
+     *   However, this is not a critical method, it can't be exploited and it should only be called by the
+     *   keepers registry or the owner.
      */
     function performUpkeep(bytes calldata) external override {
+        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
+        
         // Re-validate the upkeep condition.
+        //slither-disable-next-line block-timestamp
         if ((block.timestamp - lastTimeStamp) > interval ) {
+            //slither-disable-next-line block-timestamp
             lastTimeStamp = block.timestamp;
 
             // Update the USDC/USD price.
@@ -223,8 +240,7 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
     /**
      * @notice Pause the contract: prices won't be updated by Chainlink keepers until
      * the contract is unpaused by the owner.
-     * @dev This method can be used to prevent errors.
-     * Also note that the prices can still be updated manually by the owner.
+     * @dev Prices can still be updated manually by the owner.
      */
     function pause() external onlyOwner {
         paused = true;
@@ -256,7 +272,9 @@ contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ the price of the asset.
      */
     function getAssetPrice(string memory _asset) external view returns (uint256) {
-        require(assetToPrice[_asset].exists);
+        require(bytes(_asset).length > 0, "The asset name cannot be empty");
+        require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
+        
         return assetToPrice[_asset].price;
     }
 
