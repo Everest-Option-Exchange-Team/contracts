@@ -94,16 +94,10 @@ contract Hub is AuthorizedAddresses {
         return collateralValue  / totalValueMinted;
     }
 
-    /**
-     * @notice creates liquidity pool for a specific synthAsset on Uniswap
-     * @param _tickerSymbol idendifier of synthAsset
-     */
-    function createTradingPairOnUniswap(string memory _tickerSymbol) external onlyOwner {
-        uint24 fee = 3000;
-        address syntheticContract = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
-        address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
-        tickerSymbolToTradingPool[_tickerSymbol] = newTradingPool;
-    }
+    function getCollateralRatioByAddress(address _user) public view returns (uint256) {
+        //Check amount funded
+        uint256 amountFunded = fundContract.getCollateralByAddress(_user);
+        uint256 collateralPrice = storageContract.getAssetPrice(USDCKovan);
 }
 
 interface Factory {
