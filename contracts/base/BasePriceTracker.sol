@@ -6,17 +6,17 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 /**
- * @title Storage contract that retrieves asset prices.
- * @dev It consumes the USDC/USD price using Chainlink Data Feeds and asset prices using Chainlink External
- * Adapters and Alpha Vantage API. See the external adapter on the market:
- * https://market.link/adapters/30861015-8da4-4f24-a76b-20efaf199e28.
- *
- * The prices are updated every {_updateInterval} seconds using Chainlink Keepers.
- * To make it work, the contract must be registered as an Unkeep on the Keepers Registry after its deployment.
- * See: https://docs.chain.link/docs/chainlink-keepers/register-upkeep/.
+ * @title BasePriceTracker contract that retrieves USDC and asset prices.
+ * @dev The contract uses multiple oracle Chainlink products to expose the most reliable data possible.
+ * Of course, the ideal would be to diversify the sources and thus to explore the possibilities of other
+ * oracles but that was well beyond the scope of the hackathon.
+ * To summarize, the contract is based on:
+ * - Chainlink Data Feeds to obtain the price of the USDC/USD pair.
+ * - Chainlink External Adapters and the Alpha Vantage API  to obtain the USD price of assets (stocks, commodities, etc.).
+ * - Chainlnk Keepers to update the prices periodically.
  * @author The Everest team.
  */
-contract Storage is ChainlinkClient, KeeperCompatibleInterface {
+contract BasePriceTracker is ChainlinkClient, KeeperCompatibleInterface {
     using Chainlink for Chainlink.Request;
 
     // Chainlink data feeds parameters.
@@ -75,9 +75,9 @@ contract Storage is ChainlinkClient, KeeperCompatibleInterface {
     /**
      * @notice Initialise the contract.
      * @param _linkAddress the address of the link token contract.
-     * @param _aggregatorAddress the address of the aggregator for USDC/USD.
+     * @param _aggregatorAddress the address of the USDC/USD aggregator.
      * @param _oracleAddress the address of the chainlink node operator.
-     * @param _jobId the id of the job.
+     * @param _jobId the id of the job (it has to be written between quotes!).
      * @param _apiKey the alpha vantage api key.
      * @param _updateInterval the update interval of the supported asset prices (in seconds).
      */
