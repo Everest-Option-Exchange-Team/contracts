@@ -3,12 +3,19 @@ name: CI Workflow
 on:
   push:
     paths:
-      - '.github/workflows/main.yml'
+      # Workflows.
+      - '.github/workflows/*.yml'
+      # Contracts.
       - 'contracts/**.sol'
-      - 'deploy/*.sol'
-      - 'test/*.sol'
-      - 'hardhat.config.json'
+      # Scripts.
+      - 'deploy/*.js'
+      - 'test/*.js'
+      # Configuration files.
+      - 'hardhat.config.js'
+      - 'helper.config.js'
+      # Dependencies.
       - 'package.json'
+      - 'package-lock.json'
 
 concurrency: 
   group: ${{ github.ref }}
