@@ -249,6 +249,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @dev Prices can still be updated manually by the owner.
      */
     function pause() external onlyOwner {
+        require(!paused, "The contract is already paused");
         paused = true;
         emit Paused();
     }
@@ -258,6 +259,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * the contract is paused by the owner.
      */
     function unpause() external onlyOwner {
+        require(paused, "The contract is not paused");
         paused = false;
         emit Unpaused();
     }
