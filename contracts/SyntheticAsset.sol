@@ -11,7 +11,7 @@ import "./samples/AuthorizedAddresses.sol";
  */
 contract SyntheticAsset is ERC20, AuthorizedAddresses {
 
-    mapping(address => uint256) userToSynthAssetEligibleToBurn;
+    mapping(address => uint256) public userToSynthAssetEligibleToBurn;
     /**
      * @notice sets name and tickerSymbol of new ERC20 token
      * @param _name name of new ERC20 token

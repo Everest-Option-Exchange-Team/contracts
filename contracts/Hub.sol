@@ -151,6 +151,7 @@ contract Hub is AuthorizedAddresses {
                 if (assetAmountToSellToRevertToOnePointFive < 0) {
                     // next bigger asset gets liquidated in the next step
                     //liquidateUser(largestPositionAmount);
+                    reduceSynthAssetEligibleToBurn(assetAmountToSellToRevertToOnePointFive, largestPositionTickerSymbol, users[i]);
                     liquidatedUsers.push(users[i]);
                 } else{
                     // this functions need amount
@@ -161,8 +162,11 @@ contract Hub is AuthorizedAddresses {
         }
     }
 
-    function reduceSynthAssetEligibleToBurn(string memory _tickerSymbol, address _user) internal {
-
+    function reduceSynthAssetEligibleToBurn(uint256 assetAmount, string memory _tickerSymbol, address _user) internal {
+        address sAssetAddress = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
+        ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
+        uint256 synthAssetEligibleToBurnBeforeLiquidation = sAsset.userToSynthAssetEligibleToBurn[_user];
+        // implement formula 1)
     }
 
 }
