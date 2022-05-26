@@ -7,7 +7,7 @@
     "compile": "npx hardhat compile --force",
     "test": "npx hardhat test",
     "verify": "npx hardhat verify",
-    "deploy-fund": "npx hardhat run deploy/fund.js",
+    "deploy-collateral-fund": "npx hardhat run deploy/collateral-fund.js",
     "deploy-price-tracker": "npx hardhat run deploy/price-tracker.js",
     "slither": "slither .",
     "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/PriceTrackerV1.sol"

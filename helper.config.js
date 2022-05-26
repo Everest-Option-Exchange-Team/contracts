@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 
-// Parameters used to deploy the PriceTracker smart contract.
+// Parameters used to deploy the PriceTrackerV1 smart contract.
 const priceTrackerConfig = {
     // Common parameters.
     common: {
@@ -34,6 +34,25 @@ const priceTrackerConfig = {
     },
 };
 
+// Parameters used to deploy the CollateralFundV1 smart contract.
+const collateralFundConfig = {
+    // Common parameters.
+    common: {
+        hubAddress: hre.ethers.constants.AddressZero,
+    },
+    
+    // Network-specific parameters.
+    network: {
+        42: { // Kovan testnet.
+            usdcTokenAddress: "0xe22da380ee6b445bb8273c81944adeb6e8450422",
+        },
+        43113: { // Fuji testnet.
+            usdcTokenAddress: "0x0950fc1ad509358daead5eb8020a3c7d8b43b9da",
+        },
+    },
+};
+
 module.exports = {
-    priceTrackerConfig
+    priceTrackerConfig,
+    collateralFundConfig,
 };
