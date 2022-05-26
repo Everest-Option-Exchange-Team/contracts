@@ -55,12 +55,21 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			txn = await priceTrackerContract.addAsset("asset3");
 			await txn.wait();
 
+			// It should fail when adding an empty asset.
+			await expect(priceTrackerContract.addAsset(""))
+				.to.be.revertedWith("The string parameter cannot be empty");
+
+			// It should fail when adding an already supported asset.
+			await expect(priceTrackerContract.addAsset("asset1"))
+				.to.be.revertedWith("The asset must not already be registered in the contract");
+
 			// Check that the supported asset list is correctly updated.
 			assetList = await priceTrackerContract.getAssetList();
 			expect(assetList).to.eql(["asset1", "asset2", "asset3"]);
 
 			// It should fail when any user tries to add a new asset.
-			await priceTrackerContract.connect(user).addAsset("asset4").reverted;
+			await expect(priceTrackerContract.connect(user).addAsset("asset4"))
+				.to.be.revertedWith("Only the hub and the owner can call this method");
 		});
 	});
 
@@ -71,7 +80,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			await txn.wait();
 
 			// It should fail when any other user tries to withdraw funds.
-			await priceTrackerContract.connect(user).withdraw().reverted;
+			await expect(priceTrackerContract.connect(user).withdraw())
+				.to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 
