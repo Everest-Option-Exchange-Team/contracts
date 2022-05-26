@@ -100,6 +100,56 @@ describe("PriceTrackerV1 smart contract tests", () => {
 	// TODO: Test checkUpkeep() and performUpkeep() (chainlink keepers).
 
 	// TODO: Test pause() and unpause().
+	describe("Pause", () => {
+		it("Should pause the contract", async () => {
+			// Check that the contract is not paused.
+			let isPaused = await priceTrackerContract.paused();
+			expect(isPaused).to.be.false;
+
+			// It should fail when a user tries to pause the contract.
+			await priceTrackerContract.connect(user).pause().reverted;
+
+			// Pause the contract.
+			let txn = await priceTrackerContract.pause();
+			await txn.wait();
+
+			// Check that the contract is paused.
+			isPaused = await priceTrackerContract.paused();
+			expect(isPaused).to.be.true;
+
+			// It should fail when the keepers registry tries to update the prices.
+			await priceTrackerContract.checkUpkeep().reverted;
+
+			// It should fail when the owner tries to pause the contract again.
+			await priceTrackerContract.pause().reverted;
+		});
+	});
+
+	describe("Unpause", () => {
+		it("Should unpause the contract", async () => {
+			// Pause the contract
+			txn = await priceTrackerContract.pause();
+			await txn.wait();
+
+			// It should fail when a user tries to unpause the contract.
+			await priceTrackerContract.connect(user).unpause().reverted;
+
+			// Unpause the contract.
+			txn = await priceTrackerContract.unpause();
+			await txn.wait();
+
+			// Check that the contract is unpaused.
+			isPaused = await priceTrackerContract.paused();
+			expect(isPaused).to.be.false;
+
+			// It should not fail when the keepers registry tries to update the prices.
+			const result = await priceTrackerContract.checkUpkeep(hre.ethers.constants.HashZero);
+			expect(result[0]).to.be.oneOf([true, false]);
+
+			// It should fail when the owner tries to pause the contract again.
+			await priceTrackerContract.unpause().reverted;
+		});
+	});
 
 	// TODO: Test getUSDCPrice().
 
