@@ -79,6 +79,14 @@ contract Hub is AuthorizedAddresses {
     }
 
     /**
+     * @notice retrieve list of ticker symbols of open sAssets positions of a user
+     * @param _user address of a user for which the ticker symbols should be retrieved  
+     */
+    function getAssetListOfUserByAddress(address _user) public returns(string[] memory) {
+        return userAddressToOpenSynthPositions[_user];
+    }
+
+    /**
      * @notice checks the collateral ratio of an address.
      * @dev for all assets combined. No individual / isolated positions for now.
      * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral.
