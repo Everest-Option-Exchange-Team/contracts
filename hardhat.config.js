@@ -12,6 +12,9 @@ module.exports = {
         version: "0.8.7",
       },
       {
+        version: "0.7.0",
+      },
+      {
         version: "0.6.6",
       },
       {
@@ -41,23 +44,28 @@ module.exports = {
         "0xcdbfd34f687ced8c6968854f8a99ae47712c4f4183b78dcc4a903d1bfe8cbf60",
         "0x86f78c5416151fe3546dece84fda4b4b1e36089f2dbc48496faf3a950f16157c",
         "0x750839e9dbbd2a0910efe40f50b2f3b2f2f59f5580bb4b83bd8c1201cf9a010a"
-      ]
+      ],
+      saveDeployments: true,
     },
     fuji: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43113,
-      accounts: [FUJI_PRIVATE_KEY]
+      accounts: [FUJI_PRIVATE_KEY],
+      saveDeployments: true,
     },
     kovan: {
       url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
-      accounts: [KOVAN_PRIVATE_KEY]
+      chainId: 42,
+      accounts: [KOVAN_PRIVATE_KEY],
+      saveDeployments: true,
     },
     mainnet: {
       url: "https://api.avax.network/ext/bc/C/rpc",
       gasPrice: 225000000000,
       chainId: 43114,
-      accounts: [MAINNET_PRIVATE_KEY]
+      accounts: [MAINNET_PRIVATE_KEY],
+      saveDeployments: true,
     }
   },
   gasReporter: {

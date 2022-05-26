@@ -30,12 +30,21 @@ Then populate it with:
 - Compile: `$ npm run compile`
 - Test: `$ npm run test`
 - Deploy:
-    - On localhost: `$ npm run <deploy-fund|deploy-api-consumer>`
-    - On any other network: `$ npm run <deploy-fund|deploy-api-consumer> -- --network <network>`\
+    - On localhost: `$ npm run <deploy-fund|deploy-price-tracker>`
+    - On any other network: `$ npm run <deploy-fund|deploy-price-tracker> -- --network <network>`\
       For example on fuji testnet: `$ npm run deploy-fund -- --network fuji`
 - Audit:
     - Slither: `$ npm run slither`
     - Mythril: `$ npm run mythril`
+
+Here's a simple workflow to compile, test, audit and deploy the `PriceTracker`contract on the Kovan testnet:
+```sh
+$ npm run compile
+$ npm run test
+$ npm run slither
+$ npm run mythril
+$ npm run deploy-price-tracker -- --network kovan
+```
 
 ### 🪙 Fuji faucets
 

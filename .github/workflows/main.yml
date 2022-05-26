@@ -3,8 +3,23 @@ name: CI Workflow
 on:
   push:
     paths:
-      - '.github/workflows/main.yml'
-      - 'contracts/*.sol'
+      # Workflows.
+      - '.github/workflows/*.yml'
+      # Contracts.
+      - 'contracts/**.sol'
+      # Scripts.
+      - 'deploy/*.js'
+      - 'test/*.js'
+      # Configuration files.
+      - 'hardhat.config.js'
+      - 'helper.config.js'
+      # Dependencies.
+      - 'package.json'
+      - 'package-lock.json'
+
+concurrency: 
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # Hardhat CI workflow.
@@ -12,7 +27,7 @@ jobs:
   hardhat:
     strategy:
       matrix:
-        contract: ['fund', 'api-consumer']
+        contract: ['fund', 'price-tracker']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -68,8 +83,10 @@ jobs:
 
   # Audit CI workflow.
   # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
+  # It will only run if the hardhat job succeeds.
   audit:
     runs-on: ubuntu-latest
+    needs: [hardhat]
     steps:
     - uses: actions/checkout@v3
     - name: 📦 Use Node.js v16.14.2 (LTS)

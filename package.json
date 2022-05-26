@@ -8,9 +8,9 @@
     "test": "npx hardhat test",
     "verify": "npx hardhat verify",
     "deploy-fund": "npx hardhat run deploy/fund.js",
-    "deploy-api-consumer": "npx hardhat run deploy/api-consumer.js",
+    "deploy-price-tracker": "npx hardhat run deploy/price-tracker.js",
     "slither": "slither .",
-    "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/StockAPIConsumer.sol"
+    "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/PriceTrackerV1.sol"
   },
   "repository": {
     "type": "git",
