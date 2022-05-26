@@ -12,7 +12,7 @@ import "./samples/AuthorizedAddresses.sol";
 
 contract Hub is AuthorizedAddresses {
     // Contract addresses
-    ICollateralFunds public fundContract;
+    ICollateralFunds public collateralFundsContract;
     IStorage public storageContract;
     IUniswapV3Factory public factory;
 
@@ -67,7 +67,7 @@ contract Hub is AuthorizedAddresses {
      * @param _fundAddress address of Fund contract
      */
     function setCollateralFundsContract(address _fundAddress) public onlyOwner{
-        fundContract = ICollateralFunds(_fundAddress);
+        collateralFundsContract = ICollateralFunds(_fundAddress);
     }
 
     /**
@@ -89,20 +89,24 @@ contract Hub is AuthorizedAddresses {
     /**
      * @notice checks the collateral ratio of an address.
      * @dev for all assets combined. No individual / isolated positions for now.
-     * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral.
+     * @dev price checking of collateral too -> volatile collateral / depegging of stable collateral.
      * @param _user address of user whom collateral ratio is to be checked.
      * @return _collateral ratio
      */
-    function getCollateralRatioByAddress(address _user) public view returns (uint256) {
+    function getCollateralRatioByAddress(address _user) public view returns (uint256, uint256, uint256, string memory, uint256, uint256) {
         //Check amount funded
-        uint256 amountFunded = fundContract.getCollateralByAddress(_user);
+        uint256 amountFunded = collateralFundsContract.getCollateralByAddress(_user);
         uint256 collateralPrice = storageContract.getAssetPrice('USDC');
         uint256 collateralValue = amountFunded * collateralPrice;
 
         //Check assets minted
-        string[] memory assetsMinted = storageContract.getAssetListOfUser(_user); // this function needs to be implemented in hub contract
+        string[] memory assetsMinted = userAddressToOpenSynthPositions[_user];
         // Total value of minted assets
         uint256 totalValueMinted = 0;
+        // Find the largest position to be liquidated
+        string memory largestPositionTickerSymbol = "";
+        uint256 largestPositionAmount = 0;
+        uint256 largestPositionValue = 0;  // <- here end
         //Sum up total value of minted assets
         for(uint i = 0; i < assetsMinted.length; i++) {
             address sAssetAddress = tickersymbolToSynthAssetContractAddress[assetsMinted[i]];
@@ -111,14 +115,19 @@ contract Hub is AuthorizedAddresses {
             uint256 assetAmount = sAsset.balanceOf(_user);
             uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
             uint256 assetValue = assetAmount * assetPrice;
+            if (assetValue > largestPositionValue) {
+                largestPositionTickerSymbol = assetsMinted[i];
+                largestPositionAmount = assetAmount;
+                largestPositionValue = assetValue;
+            }
             totalValueMinted += assetValue;
         }
-        //return collateral / totalValueMinted 
-        return collateralValue  / totalValueMinted;
+        uint256 ratio = 100 * (collateralValue / totalValueMinted);
+        return (ratio, totalValueMinted, collateralValue, largestPositionTickerSymbol, largestPositionAmount, largestPositionValue);
     }
 
     function liquidateUnderCollateralizedUsers() external onlyAuthorizedAddresses {
-        address[] memory users = fundContract.getFunders();
+        address[] memory users = collateralFundsContract.getFunders();
         address[] memory liquidatedUsers = []; // how to code a growing list within a function, otherwise field of contract
         for(uint i = 0; i < users.length; i++) {
             (uint256 ratio,
