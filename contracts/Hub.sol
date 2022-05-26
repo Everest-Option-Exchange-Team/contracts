@@ -93,14 +93,46 @@ contract Hub is AuthorizedAddresses {
         return collateralValue  / totalValueMinted;
     }
 
+    function liquidateUnderCollateralizedUsers() external onlyAuthorizedAddresses {
+        address[] memory users = fundContract.getFunders();
+        address[] memory liquidatedUsers = []; // how to code a growing list within a function, otherwise field of contract
+        for(uint i = 0; i < users.length; i++) {
+            (uint256 ratio,
+            uint256 totalValueMinted,
+            uint256 collateralValue,
+            string memory largestPositionTickerSymbol,
+            uint256 largestPositionAmount,
+            uint256 largestPositionValue) = getCollateralRatioByAddress(users[i]);
+            if (ratio < 150) {
+                // compute amount and asset to be liquidated
+                uint256 maximalAllowedValueMintedInUSD = collateralValue / 150;
+                uint256 assetAmountAllowedToHave = maximalAllowedValueMintedInUSD / storageContract.getAssetPrice(largestPositionTickerSymbol);
+                uint256 assetAmountToSellToRevertToOnePointFive = largestPositionAmount - assetAmountAllowedToHave;
+                if (assetAmountToSellToRevertToOnePointFive < 0) {
+                    // next bigger asset gets liquidated in the next step
+                    //liquidateUser(largestPositionAmount);
+                    liquidatedUsers.push(users[i]);
+                } else{
+                    // this functions need amount
+                    //liquidateUser(assetAmountToSellToRevertToOnePointFive);
+                    liquidatedUsers.push(users[i]);
+                }
+            }
+        }
+    }
+
 }
 
 interface ISyntheticAsset {
+    function balanceOf(address account) public view virtual override returns (uint256); 
+
     function mint(address _to, uint256 _amount) external;
 }
 
 interface ICollateralFunds {
-    function getCollateralByAddress (address _addr) external view returns (uint256);
+    function getFunders() external view returns (address[] memory); 
+
+    function getCollateralByAddress(address _addr) external view returns (uint256);
 }
 
 interface IStorage {
