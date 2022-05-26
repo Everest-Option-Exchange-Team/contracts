@@ -38,7 +38,8 @@ contract Hub is AuthorizedAddresses {
      * @param _amount amount of token that gets minted
      * @param _tickerSymbol identifier of which token gets minted
      */
-    function mintSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public onlyAuthorizedAddresses{
+    function mintSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public onlyAuthorizedAddresses {
+        // TODO: check for collateralisation ratio
         ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).mint(_receiver, _amount);
         // if minted, add tickerSymbol to minted assets for a specific user, if it's the first time minting a specific asset x.
         string[] memory openSynthPositions = userAddressToOpenSynthPositions[_receiver];
@@ -53,6 +54,8 @@ contract Hub is AuthorizedAddresses {
             userAddressToOpenSynthPositions[_receiver].push(_tickerSymbol);
         }
     }
+
+    // TODO: implement burnSynthAsset, incl. updating userAddressToOpenSynthPositions
 
     /**
      * @notice sets the contract address of on sythetic asset (e.g synthTSLA)
@@ -166,7 +169,15 @@ contract Hub is AuthorizedAddresses {
         address sAssetAddress = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
         ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
         uint256 synthAssetEligibleToBurnBeforeLiquidation = sAsset.userToSynthAssetEligibleToBurn[_user];
-        // implement formula 1)
+        // TODO: implement formula 1)
+    }
+
+    function liquidateUSDCOfUser() internal {
+        // TODO: implement formula 2), use num(eligbleToBurn, t=2.1) from reduceSynthAssetEligibleToBurn and num(eligibleToBurn, t=2)
+    }
+
+    function swapUSDCsAsset() internal {
+        // TOOD: implement swapping and burn receiving sAsset
     }
 
 }

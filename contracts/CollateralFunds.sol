@@ -40,6 +40,7 @@ contract CollateralFunds {
      * @notice Send money to the fund.
      */
     function fundCollateral() external payable {
+        // TODO: change to USDC instead of Ether
         collateralFundedByAddress[msg.sender] += msg.value;
         totalCollateral  += msg.value;
         funders.push(msg.sender);
@@ -51,6 +52,7 @@ contract CollateralFunds {
      * @param _amount the amount to withdraw from the fund.
      */
     function withdrawCollateral(uint256 _amount) external payable {
+        // TODO: change to USDC instead of Ether
         require(_amount <= collateralFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
         collateralFundedByAddress[msg.sender] -= _amount;
         totalCollateral  -= _amount;
@@ -81,7 +83,7 @@ contract CollateralFunds {
      * @return _ the amount of the total funds
      */
     function getTotalCollateral () external view returns (uint256) {
-        return totalCollateral ;
+        return totalCollateral;
     }
 
     /**
