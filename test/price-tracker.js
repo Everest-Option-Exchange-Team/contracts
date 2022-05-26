@@ -107,9 +107,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			await txn.wait();
 
 			// Check the TSLA price stored in the contract is null.
-			const tslaPrice = await priceTrackerContract.assetToPrice("TSLA");
-			expect(tslaPrice.price.toNumber()).to.equal(0);
-			expect(tslaPrice.exists).to.be.true;
+			const tslaPrice = await priceTrackerContract.getAssetPrice("TSLA");
+			expect(tslaPrice.toNumber()).to.equal(0);
 
 			// Request the new TSLA stock price.
 			txn = await priceTrackerContract.updateAssetPrice("TSLA");
@@ -341,6 +340,41 @@ describe("PriceTrackerV1 smart contract tests", () => {
 				.connect(user)
 				.setApiKey("my-api-key")
 			).to.be.revertedWith("Only the owner can call this method");
+		});
+	});
+
+	/**************************************** For test purposes ****************************************/
+
+	describe("SetAssetPrice", () => {
+		it("Should update the price of the TSLA asset", async () => {
+			// Add the TSLA stock in the supported asset list.
+			let txn = await priceTrackerContract.addAsset("TSLA");
+			await txn.wait();
+
+			// Check the TSLA price stored in the contract is null.
+			let tslaPrice = await priceTrackerContract.getAssetPrice("TSLA");
+			expect(tslaPrice.toNumber()).to.equal(0);
+
+			// Update the TSLA stock price to $123,45.
+			txn = await priceTrackerContract.setAssetPrice("TSLA", 12345);
+			await txn.wait();
+
+			// Check that the TSLA price has been updated.
+			tslaPrice = await priceTrackerContract.getAssetPrice("TSLA");
+			expect(tslaPrice.toNumber()).to.equal(12345);
+
+			// It should fail when updating the price of an empty asset.
+			await expect(priceTrackerContract.setAssetPrice("", 12345))
+				.to.be.revertedWith("The string parameter cannot be empty");
+
+			// It should fail when updating the price of an unsupported asset.
+			await expect(priceTrackerContract.setAssetPrice("my-asset", 12345))
+				.to.be.revertedWith("The asset must already be registered in the contract");
+
+			// It should fail when any other user than the keepers registry
+			// or the owner tries to update the price.
+			await expect(priceTrackerContract.connect(user).setAssetPrice("TSLA", 12345))
+				.to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 });

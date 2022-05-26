@@ -374,4 +374,19 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
         emit ApiKeyUpdated(apiKey, _apiKey);
         apiKey = _apiKey;
     }
+
+    /**************************************** For test purposes ****************************************/
+
+    /**
+     * @notice Update the price of any asset.
+     * @param _asset the name of the asset.
+     * @param _price the new asset price.
+     * @dev This is only for test purposes, we'll remove this function before deploying.
+     */
+    function setAssetPrice(string memory _asset, uint256 _price) public onlyOwner strNotEmpty(_asset) {
+        require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
+
+    	assetToPrice[_asset].price = _price;
+        emit PriceUpdated("TEST", _price);
+    }
 }
