@@ -157,10 +157,11 @@ contract Hub is AuthorizedAddresses {
                 if (assetAmountToSellToRevertToOnePointFive < 0) {
                     // largest position gets fully liquidated, next bigger asset gets liquidated in the next step
                     (uint256 eligbleToBurn_t_1, uint256 assetAmountToBuyOnUniswapAndBurn) = reduceSynthAssetEligibleToBurn(largestPositionAmount, largestPositionTickerSymbol, users[i], collateralValue);
+                    liquidateUSDCOfUser(eligbleToBurn_t_1, users[i], largestPositionTickerSymbol);
                     //liquidatedUsers.push(users[i]);
-                } else{
+                } else {
                     (uint256 eligbleToBurn_t_1, uint256 assetAmountToBuyOnUniswapAndBurn) = reduceSynthAssetEligibleToBurn(assetAmountToSellToRevertToOnePointFive, largestPositionTickerSymbol, users[i], collateralValue);
-                    //liquidateUser(assetAmountToSellToRevertToOnePointFive);
+                    liquidateUSDCOfUser(eligbleToBurn_t_1, users[i], largestPositionTickerSymbol);
                     //liquidatedUsers.push(users[i]);
                 }
             }
