@@ -14,7 +14,7 @@ import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
  * - Chainlink Data Feeds to obtain the price of the USDC/USD pair.
  * - Chainlink External Adapters and the Alpha Vantage API  to obtain the USD price of assets (stocks, commodities, etc.).
  * - Chainlnk Keepers to update the prices periodically.
- * @author The Everest team.
+ * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
  */
 contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     using Chainlink for Chainlink.Request;

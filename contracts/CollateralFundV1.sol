@@ -2,9 +2,9 @@
 pragma solidity ^0.8.7;
 
 /**
- * @title Contract where users can deposit and withdraw collateral funds.
- * @dev At the moment, the only accepted collateral is USDC.
- * @author The Everest team.
+ * @title Contract that allows users to managed their collateral funds.
+ * @dev For the moment, the only collateral accepted is the USDC.
+ * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
  */
 contract CollateralFunds {
     mapping(address => uint256) public collateralFundedByAddress;

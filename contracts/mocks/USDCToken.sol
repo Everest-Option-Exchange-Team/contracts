@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
+/**
+ * @title Mock USDC token contract.
+ * @dev Developers can use this to test their contracts.
+ * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
+ */
 contract USDCToken {
     // Token parameters.
     string public constant name = "USDCStableCoin";
