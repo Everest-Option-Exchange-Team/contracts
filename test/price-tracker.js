@@ -106,7 +106,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			expect(isPaused).to.be.false;
 
 			// It should fail when a user tries to pause the contract.
-			await priceTrackerContract.connect(user).pause().reverted;
+			await expect(priceTrackerContract.connect(user).pause())
+				.to.be.revertedWith("Only the owner can call this method");
 
 			// Pause the contract.
 			let txn = await priceTrackerContract.pause();
@@ -120,7 +121,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			await priceTrackerContract.checkUpkeep().reverted;
 
 			// It should fail when the owner tries to pause the contract again.
-			await priceTrackerContract.pause().reverted;
+			await expect(priceTrackerContract.pause())
+				.to.be.revertedWith("The contract is already paused");
 		});
 	});
 
@@ -131,7 +133,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			await txn.wait();
 
 			// It should fail when a user tries to unpause the contract.
-			await priceTrackerContract.connect(user).unpause().reverted;
+			await expect(priceTrackerContract.connect(user).unpause())
+				.to.be.revertedWith("Only the owner can call this method");
 
 			// Unpause the contract.
 			txn = await priceTrackerContract.unpause();
@@ -145,8 +148,9 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			const result = await priceTrackerContract.checkUpkeep(hre.ethers.constants.HashZero);
 			expect(result[0]).to.be.oneOf([true, false]);
 
-			// It should fail when the owner tries to pause the contract again.
-			await priceTrackerContract.unpause().reverted;
+			// It should fail when the owner tries to unpause the contract again.
+			await expect(priceTrackerContract.unpause())
+				.to.be.revertedWith("The contract is not paused");
 		});
 	});
 
