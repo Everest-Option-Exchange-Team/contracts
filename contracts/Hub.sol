@@ -69,23 +69,22 @@ contract Hub is AuthorizedAddresses {
      * @notice checks the collateral ratio of an address.
      * @dev for all assets combined. No individual / isolated positions for now.
      * @dev price checking of colllateral too -> volatile collateral / depegging of stable collateral.
-     * @param _addr address of user whom collateral ratio is to be checked.
-     * @param _collateralTickerSymbol identifier of token used for collateral.
+     * @param _user address of user whom collateral ratio is to be checked.
      * @return _collateral ratio
      */
-    function getCollateralRatioByAddress(address _addr, string memory _collateralTickerSymbol) public view returns (uint256) {
+    function getCollateralRatioByAddress(address _user) public view returns (uint256) {
         //Check amount funded
-        uint256 amountFunded = fundContract.getCollateralByAddress(_addr);
-        uint256 collateralPrice = storageContract.getAssetPrice(_collateralTickerSymbol);
+        uint256 amountFunded = fundContract.getCollateralByAddress(_user);
+        uint256 collateralPrice = storageContract.getAssetPrice('USDC');
         uint256 collateralValue = amountFunded * collateralPrice;
 
         //Check assets minted
-        string[] memory assetsMinted = storageContract.getAssetListOfUser(_addr);
+        string[] memory assetsMinted = storageContract.getAssetListOfUser(_user);
         // Total value of minted assets
         uint256 totalValueMinted = 0;
         //Sum up total value of minted assets
         for(uint i = 0; i < assetsMinted.length; i++) {
-            uint256 assetAmount = storageContract.getAssetAmountOfUser(_addr, assetsMinted[i]);
+            uint256 assetAmount = storageContract.getAssetAmountOfUser(_user, assetsMinted[i]);
             uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
             uint256 assetValue = assetAmount * assetPrice;
             totalValueMinted += assetValue;
@@ -94,11 +93,6 @@ contract Hub is AuthorizedAddresses {
         return collateralValue  / totalValueMinted;
     }
 
-    function getCollateralRatioByAddress(address _user) public view returns (uint256) {
-        //Check amount funded
-        uint256 amountFunded = fundContract.getCollateralByAddress(_user);
-        uint256 collateralPrice = storageContract.getAssetPrice('USDC');
-    }
 }
 
 interface Factory {
