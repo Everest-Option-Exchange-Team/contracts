@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./samples/AuthorizedAddresses.sol";
 
 /**
- * @title Factory contract that creates ERC20 synthetic asset contracts.
+ * @title Synthetic Asset contract that extends ERC20 standard.
  * @author The Everest team.
  */
-contract Factory is ERC20, AuthorizedAddresses {
+contract SyntheticAsset is ERC20, AuthorizedAddresses {
 
+    mapping(address => uint256) userToSynthAssetEligibleToBurn;
     /**
      * @notice sets name and tickerSymbol of new ERC20 token
      * @param _name name of new ERC20 token
@@ -25,6 +26,7 @@ contract Factory is ERC20, AuthorizedAddresses {
      */
     function mint(address _to, uint256 _amount) public onlyAuthorizedAddresses {
         _mint(_to, _amount);
+        userToSynthAssetEligibleToBurn[_to] = _amount;
     }
     /**
      * @notice burns new tokens
@@ -32,6 +34,7 @@ contract Factory is ERC20, AuthorizedAddresses {
      * @param _amount amount of tokens that get burned
      */
     function burn(address _from, uint _amount) public onlyAuthorizedAddresses {
+        require(_amount <= userToSynthAssetEligibleToBurn[_from]);
         _burn(_from, _amount);
     }
 }
