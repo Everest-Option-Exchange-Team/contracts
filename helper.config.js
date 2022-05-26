@@ -44,7 +44,7 @@ const collateralFundConfig = {
     // Network-specific parameters.
     network: {
         42: { // Kovan testnet.
-            usdcTokenAddress: "0xe22da380ee6b445bb8273c81944adeb6e8450422",
+            usdcTokenAddress: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
         },
         43113: { // Fuji testnet.
             usdcTokenAddress: "0x0950fc1ad509358daead5eb8020a3c7d8b43b9da",
