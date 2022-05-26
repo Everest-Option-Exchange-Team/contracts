@@ -3,11 +3,11 @@
 const hre = require("hardhat");
 require("dotenv").config();
 
-const { collateralFundConfig } = require("../helper.config");
+const { commonConfig, collateralFundConfig } = require("../helper.config");
 
 async function main() {
   // Common parameters.
-  const hubAddress = collateralFundConfig.common.hubAddress;
+  const hubAddress = commonConfig.hubAddress;
 
   // Network-specific parameters.
   let usdcTokenAddress;

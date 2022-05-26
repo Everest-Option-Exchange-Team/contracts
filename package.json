@@ -9,6 +9,7 @@
     "verify": "npx hardhat verify",
     "deploy-collateral-fund": "npx hardhat run deploy/collateral-fund.js",
     "deploy-price-tracker": "npx hardhat run deploy/price-tracker.js",
+    "deploy-synthetic-assets": "npx hardhat run deploy/synthetic-assets.js",
     "slither": "slither .",
     "mythril": "myth analyze contracts/Fund.sol && myth analyze contracts/PriceTrackerV1.sol"
   },
