@@ -85,29 +85,61 @@ describe("PriceTrackerV1 smart contract tests", () => {
 		});
 	});
 
-	// TODO: Test updateUSDCPrice() (chainlink data feeds).
+	/**************************************** ChainLink Data Feeds ****************************************/
 
-	// TODO: Test updateAssetPrice() (chainlink external adapters).
-	/*
+	describe("UpdateUSDCPrice", () => {
+		it("Should update the USDC price", async () => {
+			// TODO: Test that the MockV3Aggregator sends a response.
+
+			// It should fail when any other user than the keepers registry
+			// or the owner tries to update the price.
+			await expect(priceTrackerContract.connect(user).updateUSDCPrice())
+				.to.be.revertedWith("Only the keepers registry and the owner can call this method");
+		});
+	});
+
+	/**************************************** ChainLink External Adapters ****************************************/
+
 	describe("UpdateAssetPrice", () => {
-		it("Should ask for the TSLA stock price", async () => {
+		it("Should update the TSLA stock price", async () => {
+			// Add the TSLA stock in the supported asset list.
+			let txn = await priceTrackerContract.addAsset("TSLA");
+			await txn.wait();
+
 			// Check the TSLA price stored in the contract is null.
 			const tslaPrice = await priceTrackerContract.assetToPrice("TSLA");
-			expect(tslaPrice.toNumber()).to.equal(0);
+			expect(tslaPrice.price.toNumber()).to.equal(0);
+			expect(tslaPrice.exists).to.be.true;
 
 			// Request the new TSLA stock price.
-			const txn = await priceTrackerContract.updateAssetPrice("TSLA");
+			txn = await priceTrackerContract.updateAssetPrice("TSLA");
 			const transactionReceipt = await txn.wait();
 			const requestId = transactionReceipt.events[0].topics[1];
 			expect(requestId).to.not.be.null
 
-			// TODO: Check the result.
-			await mockOracleContract.fulfillOracleRequest(requestId, utils.formatBytes32String("TSLA"));
+			// TODO: Check the oracle's response.
+			await oracleContract.fulfillOracleRequest(requestId, utils.formatBytes32String("TSLA"));
+
+			// It should fail when updating an empty asset.
+			await expect(priceTrackerContract.updateAssetPrice(""))
+				.to.be.revertedWith("The string parameter cannot be empty");
+
+			// It should fail when updating an unsupported asset.
+			await expect(priceTrackerContract.updateAssetPrice("my-asset"))
+				.to.be.revertedWith("The asset must already be registered in the contract");
+
+			// It should fail when any other user than the keepers registry
+			// or the owner tries to update the price.
+			await expect(priceTrackerContract.connect(user).updateAssetPrice("TSLA"))
+				.to.be.revertedWith("Only the keepers registry and the owner can call this method");
 		});
 	});
-	*/
+
+	/**************************************** ChainLink Keepers ****************************************/
 
 	// TODO: Test checkUpkeep() and performUpkeep() (chainlink keepers).
+
+	/**************************************** Pause / Unpause ****************************************/
 
 	describe("Pause", () => {
 		it("Should pause the contract", async () => {
@@ -128,7 +160,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			expect(isPaused).to.be.true;
 
 			// It should fail when the keepers registry tries to update the prices.
-			await priceTrackerContract.checkUpkeep().reverted;
+			await expect(priceTrackerContract.checkUpkeep(ethers.constants.HashZero))
+				.to.be.revertedWith("The contract is paused and the automatic update of prices is stopped");
 
 			// It should fail when the owner tries to pause the contract again.
 			await expect(priceTrackerContract.pause())
@@ -164,6 +197,8 @@ describe("PriceTrackerV1 smart contract tests", () => {
 		});
 	});
 
+	/**************************************** Getters ****************************************/
+
 	describe("GetUSDCprice", () => {
 		it("Should get the USDC price", async () => {
 			const price = await priceTrackerContract.getUSDCPrice();
@@ -181,10 +216,17 @@ describe("PriceTrackerV1 smart contract tests", () => {
 			const assetPrice = await priceTrackerContract.getAssetPrice("asset1");
 			expect(assetPrice).to.equal(0);
 
+			// It should fail when getting the price of an empty asset.
+			await expect(priceTrackerContract.getAssetPrice(""))
+				.to.be.revertedWith("The string parameter cannot be empty");
+
 			// It should fail when getting the price of an unsupported asset.
-			await priceTrackerContract.getAssetPrice("asset2").reverted;
+			await expect(priceTrackerContract.getAssetPrice("my-asset"))
+				.to.be.revertedWith("The asset must already be registered in the contract");
 		});
 	});
+
+	/**************************************** Setters ****************************************/
 
 	describe("SetHubAddress", () => {
 		it("Should update the hub address", async () => {
