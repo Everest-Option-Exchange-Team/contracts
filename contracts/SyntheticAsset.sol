@@ -26,7 +26,6 @@ contract SyntheticAsset is ERC20, AuthorizedAddresses {
      */
     function mint(address _to, uint256 _amount) public onlyAuthorizedAddresses {
         _mint(_to, _amount);
-        // TODO: what is addr not part of mapping yet
         userToSynthAssetEligibleToBurn[_to] += _amount;
     }
     /**
@@ -37,6 +36,7 @@ contract SyntheticAsset is ERC20, AuthorizedAddresses {
     function burn(address _from, uint _amount) public onlyAuthorizedAddresses {
         require(_amount <= userToSynthAssetEligibleToBurn[_from]);
         _burn(_from, _amount);
+        userToSynthAssetEligibleToBurn[_from] -= _amount;
     }
 }
 
