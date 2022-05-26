@@ -182,8 +182,8 @@ describe("CollateralFundV1 smart contract tests", () => {
 				.to.be.revertedWith("The address parameter cannot be null");
 
 			// It should fail when updating the collateral amount as any user.
-			await expect(collateralFundContract.setUserCollateralAmount(user.address, 100)
-			).to.be.revertedWith("Only the hub can call this method");
+			await expect(collateralFundContract.setUserCollateralAmount(user.address, 100))
+                .to.be.revertedWith("Only the hub can call this method");
 		});
 	});
 
@@ -198,10 +198,8 @@ describe("CollateralFundV1 smart contract tests", () => {
 				.to.be.revertedWith("The address parameter cannot be null");
 
 			// It should fail when updating the address as any user.
-			await expect(collateralFundContract
-				.connect(user)
-				.setUsdcAddress(temp.address)
-			).to.be.revertedWith("Only the owner can call this method");
+			await expect(collateralFundContract.connect(user).setUsdcAddress(temp.address))
+                .to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 
@@ -216,10 +214,8 @@ describe("CollateralFundV1 smart contract tests", () => {
 				.to.be.revertedWith("The address parameter cannot be null");
 
 			// It should fail when updating the address as any user.
-			await expect(collateralFundContract
-				.connect(user)
-				.setHubAddress(temp.address)
-			).to.be.revertedWith("Only the owner can call this method");
+			await expect(collateralFundContract.connect(user).setHubAddress(temp.address))
+                .to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 });
