@@ -18,6 +18,7 @@ contract Hub is AuthorizedAddresses {
 
     mapping(string => address) public tickersymbolToSynthAssetContractAddress;
     mapping(string => address) public tickerSymbolToTradingPool;
+    mapping(address => string[]) public userAddressToOpenSynthPositions;
 
     address public USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
     address public uniswapV3Factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
@@ -38,7 +39,19 @@ contract Hub is AuthorizedAddresses {
      * @param _tickerSymbol identifier of which token gets minted
      */
     function mintSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public onlyAuthorizedAddresses{
-        ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).mint(_receiver, _amount); 
+        ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).mint(_receiver, _amount);
+        // if minted, add tickerSymbol to minted assets for a specific user, if it's the first time minting a specific asset x.
+        string[] memory openSynthPositions = userAddressToOpenSynthPositions[_receiver];
+        bool isInList = false;
+        for(uint i = 0; i < openSynthPositions.length; i++){
+            string memory currentSynth = openSynthPositions[i];
+            if (keccak256(bytes(currentSynth)) == keccak256(bytes(_tickerSymbol))) {
+                isInList = true;
+            }
+        }
+        if (!isInList){
+            userAddressToOpenSynthPositions[_receiver].push(_tickerSymbol);
+        }
     }
 
     /**
@@ -79,12 +92,15 @@ contract Hub is AuthorizedAddresses {
         uint256 collateralValue = amountFunded * collateralPrice;
 
         //Check assets minted
-        string[] memory assetsMinted = storageContract.getAssetListOfUser(_user);
+        string[] memory assetsMinted = storageContract.getAssetListOfUser(_user); // this function needs to be implemented in hub contract
         // Total value of minted assets
         uint256 totalValueMinted = 0;
         //Sum up total value of minted assets
         for(uint i = 0; i < assetsMinted.length; i++) {
-            uint256 assetAmount = storageContract.getAssetAmountOfUser(_user, assetsMinted[i]);
+            address sAssetAddress = tickersymbolToSynthAssetContractAddress[assetsMinted[i]];
+            ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
+            // using ERC20 standard to retrieve asset amount
+            uint256 assetAmount = sAsset.balanceOf(_user);
             uint256 assetPrice = storageContract.getAssetPrice(assetsMinted[i]);
             uint256 assetValue = assetAmount * assetPrice;
             totalValueMinted += assetValue;
