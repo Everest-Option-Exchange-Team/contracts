@@ -27,7 +27,7 @@ jobs:
   hardhat:
     strategy:
       matrix:
-        contract: ['fund', 'price-tracker']
+        contract: ['collateral-fund', 'price-tracker']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
