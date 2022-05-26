@@ -39,7 +39,10 @@ contract Hub is AuthorizedAddresses {
      * @param _tickerSymbol identifier of which token gets minted
      */
     function mintSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public onlyAuthorizedAddresses {
-        // TODO: check for collateralisation ratio
+        // Check for collateralisation ratio
+        (uint256 ratioPreMinting, uint256 totalValueMintedPreMinting, uint256 collateralValue,,,) = getCollateralRatioByAddress(_receiver);
+        // r_pre = C / ValueMinted; r_after = C / (ValueMinted + delta ValueMinted) => ValueMinted = C / r_pre
+        uint256 ratioAfterMinting = collateralValue / ((collateralValue / ratioPreMinting) + _amount);
         ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).mint(_receiver, _amount);
         // if minted, add tickerSymbol to minted assets for a specific user, if it's the first time minting a specific asset x.
         string[] memory openSynthPositions = userAddressToOpenSynthPositions[_receiver];

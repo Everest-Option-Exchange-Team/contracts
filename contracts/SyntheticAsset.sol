@@ -26,7 +26,8 @@ contract SyntheticAsset is ERC20, AuthorizedAddresses {
      */
     function mint(address _to, uint256 _amount) public onlyAuthorizedAddresses {
         _mint(_to, _amount);
-        userToSynthAssetEligibleToBurn[_to] = _amount;
+        // TODO: what is addr not part of mapping yet
+        userToSynthAssetEligibleToBurn[_to] += _amount;
     }
     /**
      * @notice burns new tokens
