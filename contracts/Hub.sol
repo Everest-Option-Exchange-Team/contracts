@@ -97,7 +97,7 @@ contract Hub is AuthorizedAddresses {
     function getCollateralRatioByAddress(address _user) public view returns (uint256) {
         //Check amount funded
         uint256 amountFunded = fundContract.getCollateralByAddress(_user);
-        uint256 collateralPrice = storageContract.getAssetPrice(USDCKovan);
+        uint256 collateralPrice = storageContract.getAssetPrice('USDC');
     }
 }
 
