@@ -152,28 +152,58 @@ contract Hub is AuthorizedAddresses {
                 uint256 assetAmountAllowedToHave = maximalAllowedValueMintedInUSD / storageContract.getAssetPrice(largestPositionTickerSymbol);
                 uint256 assetAmountToSellToRevertToOnePointFive = largestPositionAmount - assetAmountAllowedToHave;
                 if (assetAmountToSellToRevertToOnePointFive < 0) {
-                    // next bigger asset gets liquidated in the next step
-                    //liquidateUser(largestPositionAmount);
-                    reduceSynthAssetEligibleToBurn(assetAmountToSellToRevertToOnePointFive, largestPositionTickerSymbol, users[i]);
-                    liquidatedUsers.push(users[i]);
+                    // largest position gets fully liquidated, next bigger asset gets liquidated in the next step
+                    (uint256 eligbleToBurn_t_1, uint256 assetAmountToBuyOnUniswapAndBurn) = reduceSynthAssetEligibleToBurn(largestPositionAmount, largestPositionTickerSymbol, users[i], collateralValue);
+                    //liquidatedUsers.push(users[i]);
                 } else{
-                    // this functions need amount
+                    (uint256 eligbleToBurn_t_1, uint256 assetAmountToBuyOnUniswapAndBurn) = reduceSynthAssetEligibleToBurn(assetAmountToSellToRevertToOnePointFive, largestPositionTickerSymbol, users[i], collateralValue);
                     //liquidateUser(assetAmountToSellToRevertToOnePointFive);
-                    liquidatedUsers.push(users[i]);
+                    //liquidatedUsers.push(users[i]);
                 }
             }
         }
     }
 
-    function reduceSynthAssetEligibleToBurn(uint256 assetAmount, string memory _tickerSymbol, address _user) internal {
+    /**
+    
+     * @return eligbleToBurn_t_2_1 and @return assetAmountToBuyOnUniswapAndBurn
+    */
+    function reduceSynthAssetEligibleToBurn(uint256 _assetAmount, string memory _tickerSymbol, address _user, uint256 _collateralValue_t_1) internal returns(uint256, uint256) {
         address sAssetAddress = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
         ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
-        uint256 synthAssetEligibleToBurnBeforeLiquidation = sAsset.userToSynthAssetEligibleToBurn[_user];
-        // TODO: implement formula 1)
+        // retrieve synthAsset that is eligible to burn t=1 which is equal to t=2
+        uint256 eligbleToBurn_t_1 = sAsset.userToSynthAssetEligibleToBurn[_user];
+        // asset price at t=2 equal to t=2.1
+        uint256 assetPrice_t_2_1 = storageContract.getAssetPrice(_tickerSymbol);
+        // collateral at t=1 which is equal to t=2
+        uint256 collateral_t_1 = collateralFundsContract.getCollateralByAddress(_user);
+        // compute eligibleToBurn at t=2.1 (after liquidation)
+        uint256 eligbleToBurn_t_2_1 = 100 * (collateral_t_1 - assetPrice_t_2_1 * eligbleToBurn_t_1) / (assetPrice_t_2_1 * (150 - 1));
+        // change eligibleToBurn within sAsset Contract
+        sAsset.userToSynthAssetEligibleToBurn[_user] = eligbleToBurn_t_2_1;
+        // compute amount which should be bought from market and burned
+        uint256 assetAmountToBuyOnUniswapAndBurn = eligbleToBurn_t_1 - eligbleToBurn_t_2_1;
+        return (eligbleToBurn_t_2_1, assetAmountToBuyOnUniswapAndBurn);
     }
 
-    function liquidateUSDCOfUser() internal {
-        // TODO: implement formula 2), use num(eligbleToBurn, t=2.1) from reduceSynthAssetEligibleToBurn and num(eligibleToBurn, t=2)
+    function liquidateUSDCOfUser(uint256 _eligbleToBurn_t_2_1, address _user, string memory _tickerSymbol) internal returns(uint256) {
+        // TODO: implement formula 2), use num(eligbleToBurn, t=2.1) from reduceSynthAssetEligibleToBurn and num(eligibleToBurn, t=2) from userToSynthAssetEligibleToBurn
+        // collateral at t=1 which is equal to t=2
+        uint256 collateral_t_1 = collateralFundsContract.getCollateralByAddress(_user);
+        // asset price at t=2 equal to t=2.1
+        uint256 assetPrice_t_2_1 = storageContract.getAssetPrice(_tickerSymbol);
+        // retrieve synthAsset that is eligible to burn t=1 which is equal to t=2
+        address sAssetAddress = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
+        ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
+        uint256 eligbleToBurn_t_1 = sAsset.userToSynthAssetEligibleToBurn[_user];
+        // compute the collateral value for t=2.1 which is equal to t=3
+        uint256 collateral_t_2_1 = collateral_t_1 - assetPrice_t_2_1 * (eligbleToBurn_t_1 - _eligbleToBurn_t_2_1);
+        // difference of collateral_t_2_1 and collateral_t_1 amount of USDC to take away from user
+        uint256 usdcAmountToTakeAway = collateral_t_1 - collateral_t_2_1;
+        // since USDC was sent to our contract, only their balance has just to be adjusted, less amount available to withdraw
+        collateralFundsContract.collateralFundedByAddress[_user] = collateral_t_2_1;
+        // this amount of USDC can be used to buy sAsset
+        return usdcAmountToTakeAway;
     }
 
     function swapUSDCsAsset() internal {
