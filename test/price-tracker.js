@@ -137,7 +137,16 @@ describe("PriceTrackerV1 smart contract tests", () => {
 
 	/**************************************** ChainLink Keepers ****************************************/
 
-	// TODO: Test checkUpkeep() and performUpkeep() (chainlink keepers).
+	describe("PerformUpkeep", async () => {
+		it("Should update the price of all the supported assets", async () => {
+			// TODO: Test the registry behaviour with mocks.
+
+			// It should fail when any other user than the keepers registry
+			// or the owner tries to update the price.
+			await expect(priceTrackerContract.connect(user).performUpkeep(ethers.constants.HashZero))
+				.to.be.revertedWith("Only the keepers registry and the owner can call this method");
+		});
+	});
 
 	/**************************************** Pause / Unpause ****************************************/
 
