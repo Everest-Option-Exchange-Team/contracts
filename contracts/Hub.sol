@@ -78,6 +78,13 @@ contract Hub is AuthorizedAddresses {
         storageContract = IStorage(_storageAddress);
     }
 
+    function createTradingPairOnUniswap(string memory tickerSymbol) external onlyOwner {
+        uint24 fee = 3000;
+        address syntheticContract = tickersymbolToSynthAssetContractAddress[tickerSymbol];
+        address newTradingPool = factory.createPool(syntheticContract, USDCKovan, fee);
+        tickerSymbolToTradingPool[tickerSymbol] = newTradingPool;
+    }
+
     /**
      * @notice retrieve list of ticker symbols of open sAssets positions of a user
      * @param _user address of a user for which the ticker symbols should be retrieved  
@@ -152,6 +159,10 @@ contract Hub is AuthorizedAddresses {
                 }
             }
         }
+    }
+
+    function reduceSynthAssetEligibleToBurn(string memory _tickerSymbol, address _user) internal {
+
     }
 
 }
