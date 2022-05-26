@@ -99,7 +99,6 @@ describe("PriceTrackerV1 smart contract tests", () => {
 
 	// TODO: Test checkUpkeep() and performUpkeep() (chainlink keepers).
 
-	// TODO: Test pause() and unpause().
 	describe("Pause", () => {
 		it("Should pause the contract", async () => {
 			// Check that the contract is not paused.
@@ -151,7 +150,12 @@ describe("PriceTrackerV1 smart contract tests", () => {
 		});
 	});
 
-	// TODO: Test getUSDCPrice().
+	describe("GetUSDCprice", () => {
+		it("Should get the USDC price", async() => {
+			const price = await priceTrackerContract.getUSDCPrice();
+			expect(price).to.equal(0);
+		});
+	});
 
 	describe("GetAssetPrice", () => {
 		it("Should get the price of an asset", async () => {
