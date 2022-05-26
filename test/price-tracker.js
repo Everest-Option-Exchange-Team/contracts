@@ -1,27 +1,24 @@
 const hre = require("hardhat");
 const { utils } = require("ethers");
-const { network } = require("hardhat");
 const { expect } = require("chai");
 
 describe("PriceTrackerV1 smart contract tests", () => {
 	let priceTrackerContract, oracleContract, owner, user, oracle, temp;
 
 	beforeEach(async () => {
-		// Define accounts.
 		[owner, user, oracle, temp] = await hre.ethers.getSigners();
 
-		// Deploy all the mock contracts.
-		// 1. Deploy the MockLinkToken contract.
+		// Deploy the MockLinkToken contract.
 		const linkTokenContractFactory = await hre.ethers.getContractFactory("LinkToken");
 		const linkTokenContract = await linkTokenContractFactory.deploy();
 		await linkTokenContract.deployed();
 
-		// 2. Deploy the MockV3Aggregator contract.
+		// Deploy the MockV3Aggregator contract.
 		const aggregatorContractFactory = await hre.ethers.getContractFactory("MockV3Aggregator");
 		const aggregatorContract = await aggregatorContractFactory.deploy(2, 10);
 		await aggregatorContract.deployed();
 
-		// 3. Deploy the MockOracle contract.
+		// Deploy the MockOracle contract.
 		const oracleContractFactory = await hre.ethers.getContractFactory("MockOracle");
 		oracleContract = await oracleContractFactory.deploy(linkTokenContract.address);
 		await oracleContract.deployed();

@@ -27,7 +27,7 @@ jobs:
   hardhat:
     strategy:
       matrix:
-        contract: ['fund', 'storage']
+        contract: ['fund', 'price-tracker']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
