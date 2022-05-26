@@ -98,6 +98,7 @@ contract Hub is AuthorizedAddresses {
         //Check amount funded
         uint256 amountFunded = fundContract.getCollateralByAddress(_user);
         uint256 collateralPrice = storageContract.getAssetPrice(USDCKovan);
+    }
 }
 
 interface Factory {
