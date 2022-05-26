@@ -73,8 +73,6 @@ contract Hub {
         }
     }
 
-    // TODO: implement burnSynthAsset, incl. updating userAddressToOpenSynthPositions
-
     function burnSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public {
         ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).burn(_receiver, _amount);
         if (_amount == ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).getUserToSynthAssetEligibleToBurn(_receiver)){
