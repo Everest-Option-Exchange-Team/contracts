@@ -72,6 +72,26 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
         _;
     }
 
+    modifier onlyKeepersRegistryAndOwner() {
+        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
+        _;
+    }
+
+    modifier notNull(address _addr) {
+        require(_addr != address(0), "The address parameter cannot be null");
+        _;
+    }
+
+    modifier strNotEmpty(string memory _str) {
+        require(bytes(_str).length > 0, "The string parameter cannot be empty");
+        _;
+    }
+
+    modifier bytesNotEmpty(bytes32 _bytes) {
+        require(_bytes.length > 0, "The bytes parameter cannot be empty");
+        _;
+    }
+
     /**
      * @notice Initialise the contract.
      * @param _linkAddress the address of the link token contract.
@@ -81,13 +101,19 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _apiKey the alpha vantage api key.
      * @param _updateInterval the update interval of the supported asset prices (in seconds).
      */
-    constructor(address _linkAddress, address _aggregatorAddress, address _oracleAddress, bytes32 _jobId, string memory _apiKey, uint256 _updateInterval) {
-        require(_aggregatorAddress != address(0), "The aggregator address cannot be null");
-        require(_oracleAddress != address(0), "The oracle address cannot be null");
-        require(_jobId.length > 0, "The job ID cannot be empty");
-        require(bytes(_apiKey).length > 0, "The API key cannot be empty");
-        require(_updateInterval > 0, "The update interval cannot be equal to zero");
-        
+    constructor(
+        address _linkAddress,
+        address _aggregatorAddress,
+        address _oracleAddress,
+        bytes32 _jobId,
+        string memory _apiKey,
+        uint256 _updateInterval) 
+    notNull(_aggregatorAddress)
+    notNull(_oracleAddress)
+    strNotEmpty(_apiKey)
+    bytesNotEmpty(_jobId) {
+        require(_updateInterval > 0, "The update interval has to be greater than zero");
+
         owner = msg.sender;
 
         // Link token address.
@@ -117,9 +143,8 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @dev The method can only be called by the hub or the owner.
      */
      //slither-disable-next-line naming-convention
-    function addAsset(string memory _asset) external {
+    function addAsset(string memory _asset) external strNotEmpty(_asset) {
         require(msg.sender == hubAddress || msg.sender == owner, "Only the hub and the owner can call this method");
-        require(bytes(_asset).length > 0, "The asset name cannot be empty");
         require(!assetToPrice[_asset].exists, "The asset must not already be registered in the contract");
 
         assetList.push(_asset);
@@ -141,9 +166,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @notice Update the USDC/USD price using Chainlink Data Feeds.
      * @dev The method can only be called by the keepers registry or the owner.
      */
-    function updateUSDCPrice() public {
-        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
-
+    function updateUSDCPrice() public onlyKeepersRegistryAndOwner {
         (
             /*uint80 roundID*/,
             int price,
@@ -166,9 +189,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      *   It would act as a double call wich would simply update twice the asset price.
      */
      //slither-disable-next-line naming-convention
-    function updateAssetPrice(string memory _asset) public returns (bytes32 requestId) {
-        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
-        require(bytes(_asset).length > 0, "The asset name cannot be empty");
+    function updateAssetPrice(string memory _asset) public onlyKeepersRegistryAndOwner strNotEmpty(_asset) returns (bytes32 requestId) {
         require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
 
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
@@ -224,9 +245,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      *   However, this is not a critical method, it can't be exploited and it should only be called by the
      *   keepers registry or the owner.
      */
-    function performUpkeep(bytes calldata) external override {
-        require(msg.sender == keepersRegistryAddress || msg.sender == owner, "Only the keepers registry and the owner can call this method");
-        
+    function performUpkeep(bytes calldata) external override onlyKeepersRegistryAndOwner {
         // Re-validate the upkeep condition.
         if ((block.timestamp - lastTimeStamp) > interval ) {
             lastTimeStamp = block.timestamp;
@@ -280,10 +299,8 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @return _ the price of the asset.
      */
      //slither-disable-next-line naming-convention
-    function getAssetPrice(string memory _asset) external view returns (uint256) {
-        require(bytes(_asset).length > 0, "The asset name cannot be empty");
-        require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
-        
+    function getAssetPrice(string memory _asset) external view strNotEmpty(_asset) returns (uint256) {
+        require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");  
         return assetToPrice[_asset].price;
     }
 
@@ -302,9 +319,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _hubAddress the new hub address.
      */
      //slither-disable-next-line naming-convention
-    function setHubAddress(address _hubAddress) external onlyOwner {
-        require(_hubAddress != address(0), "The hub address cannot be null");
-
+    function setHubAddress(address _hubAddress) external onlyOwner notNull(_hubAddress) {
         emit HubAddressUpdated(hubAddress, _hubAddress);
         hubAddress = _hubAddress;
     }
@@ -314,9 +329,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _aggregatorAddress the new USDC/USD aggregator address.
      */
      //slither-disable-next-line naming-convention
-    function setAggregatorAddress(address _aggregatorAddress) external onlyOwner {
-        require(_aggregatorAddress != address(0), "The aggregator address cannot be null");
-
+    function setAggregatorAddress(address _aggregatorAddress) external onlyOwner notNull(_aggregatorAddress) {
         emit AggregatorAddressUpdated(aggregatorAddress, _aggregatorAddress);
         aggregatorAddress = _aggregatorAddress;
         usdcPriceFeed = AggregatorV3Interface(_aggregatorAddress);
@@ -327,9 +340,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _keepersRegistryAddress the new keepers registry address.
      */
      //slither-disable-next-line naming-convention
-    function setKeepersRegistryAddress(address _keepersRegistryAddress) external onlyOwner {
-        require(_keepersRegistryAddress != address(0), "The keepers registry address cannot be null");
-
+    function setKeepersRegistryAddress(address _keepersRegistryAddress) external onlyOwner notNull(_keepersRegistryAddress) {
         emit KeepersRegistryAddressUpdated(keepersRegistryAddress, _keepersRegistryAddress);
         keepersRegistryAddress = _keepersRegistryAddress;
     }
@@ -339,9 +350,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _oracleAddress the new chainlink node operator address.
      */
      //slither-disable-next-line naming-convention
-    function setOracleAddress(address _oracleAddress) external onlyOwner {
-        require(_oracleAddress != address(0), "The oracle address cannot be null");
-
+    function setOracleAddress(address _oracleAddress) external onlyOwner notNull(_oracleAddress) {
         emit OracleAddressUpdated(oracleAddress, _oracleAddress);
         oracleAddress = _oracleAddress;
     }
@@ -351,9 +360,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _jobId the new job ID.
      */
      //slither-disable-next-line naming-convention
-    function setJobId(bytes32 _jobId) external onlyOwner {
-        require(_jobId.length > 0, "The job ID cannot be empty");
-
+    function setJobId(bytes32 _jobId) external onlyOwner bytesNotEmpty(_jobId) {
         emit JobIDUpdated(jobId, _jobId);
         jobId = _jobId;
     }
@@ -363,9 +370,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _apiKey the new api key.
      */
      //slither-disable-next-line naming-convention
-    function setApiKey(string memory _apiKey) external onlyOwner {
-        require(bytes(_apiKey).length > 0, "The API key cannot be empty");
-
+    function setApiKey(string memory _apiKey) external onlyOwner strNotEmpty(_apiKey) {
         emit ApiKeyUpdated(apiKey, _apiKey);
         apiKey = _apiKey;
     }
