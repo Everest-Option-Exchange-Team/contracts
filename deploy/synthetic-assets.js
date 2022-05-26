@@ -23,7 +23,7 @@ async function deployAndVerify(synthFactory, name, symbol, hubAddress) {
     const synthContract = await synthFactory.deploy(name, symbol, hubAddress);
     await synthContract.deployed();
     console.log(`${name} contract deployed to ${synthContract.address}`);
-    console.log(`Verify with: $ npx hardhat verify ${synthContract.address} ${name} ${symbol} --contract contracts/SyntheticAssetV1.sol:SyntheticAssetV1 --network ${hre.network.name}`);
+    console.log(`Verify with: $ npx hardhat verify ${synthContract.address} ${name} ${symbol} ${hubAddress} --contract contracts/SyntheticAssetV1.sol:SyntheticAssetV1 --network ${hre.network.name}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
