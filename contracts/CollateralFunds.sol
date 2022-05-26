@@ -2,61 +2,70 @@
 pragma solidity ^0.8.7;
 
 /**
- * @title A simple contract to which you can deposit or withdraw collateral funds, and invoke a synthAssetMint.
+ * @title Contract where users can deposit and withdraw collateral funds.
+ * @dev At the moment, the only accepted collateral is USDC.
  * @author The Everest team.
  */
 contract CollateralFunds {
     mapping(address => uint256) public collateralFundedByAddress;
-    uint256 public totalCollateral ;
+    uint256 public totalCollateral;
     address[] public funders;
+
+    ERC20Token public usdcKovan; 
+
+    // Access-control parameters.
     address hubAddress;
 
+    // Modifiers
+    modifier onlyHub() {
+        require(msg.sender == hubAddress, "Only the hub can call this method");
+        _;
+    }
+
+    // Events
+    event Deposit(address indexed _addr, uint256 _amount, uint256 _balance);
+    event Withdraw(address indexed _addr, uint256 _amount, uint256 _balance);
 
     /**
-     * @notice constructor
-     * @param _hubAddress address of the Hub contract.
+     * @notice Initialise the contract.
+     * @param _hubAddress the address of the hub.
      */
     constructor(address _hubAddress) {
         hubAddress = _hubAddress;
     }
 
     /**
-     * @notice Event triggered when user deposits funds to the contract.
-     * @param _addr the address of the user.
-     * @param _amount the amount deposited by the user during the transaction.
-     * @param _balance the user balance (funds deposited by the user and not yet withdrawn).
+     * @notice Send collateral to the fund.
      */
-    event Deposit(address indexed _addr, uint256 _amount, uint256 _balance);
-
-    /**
-     * @notice Event triggered when user withdraws funds from the contract.
-     * @param _addr the address of the user.
-     * @param _amount the amount withdrawn by the user during the transaction.
-     * @param _balance the user balance (funds deposited by the user and not yet withdrawn).
-     */
-    event Withdraw(address indexed _addr, uint256 _amount, uint256 _balance);
-
-    /**
-     * @notice Send money to the fund.
-     */
-    function fundCollateral() external payable {
+    function fund() external payable {
         // TODO: change to USDC instead of Ether
         collateralFundedByAddress[msg.sender] += msg.value;
-        totalCollateral  += msg.value;
+        totalCollateral += msg.value;
         funders.push(msg.sender);
-        emit Deposit(msg.sender, msg.value, collateralFundedByAddress[msg.sender]);
+        emit Deposit(
+            msg.sender,
+            msg.value,
+            collateralFundedByAddress[msg.sender]
+        );
     }
 
     /**
-     * @notice Withdraw money from the fund.
+     * @notice Withdraw collateral from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
-    function withdrawCollateral(uint256 _amount) external payable {
+    function withdraw(uint256 _amount) external payable {
         // TODO: change to USDC instead of Ether
-        require(_amount <= collateralFundedByAddress[msg.sender], "You can't withdraw more than what you deposited");
+        require(
+            _amount <= collateralFundedByAddress[msg.sender],
+            "You can't withdraw more than what you deposited"
+        );
         collateralFundedByAddress[msg.sender] -= _amount;
-        totalCollateral  -= _amount;
-        emit Withdraw(msg.sender, _amount, collateralFundedByAddress[msg.sender]);
+        totalCollateral -= _amount;
+        emit Withdraw(
+            msg.sender,
+            _amount,
+            collateralFundedByAddress[msg.sender]
+        );
         payable(msg.sender).transfer(_amount);
     }
 
@@ -74,15 +83,26 @@ contract CollateralFunds {
      * @return _ amount deposited by a user
      */
     //slither-disable-next-line naming-convention
-    function getCollateralFundedByAddress(address _addr) external view returns (uint256) {
+    function getCollateralFundedByAddress(address _addr)
+        external
+        view
+        returns (uint256)
+    {
         return collateralFundedByAddress[_addr];
+    }
+
+    function setCollateralFundedByAddress(address _user, uint256 _amount)
+        public
+        onlyHub
+    {
+        collateralFundedByAddress[_user] = _amount;
     }
 
     /*
      * @notice Get the total amount funded to this smart contract.
      * @return _ the amount of the total funds
      */
-    function getTotalCollateral () external view returns (uint256) {
+    function getTotalCollateral() external view returns (uint256) {
         return totalCollateral;
     }
 
@@ -91,14 +111,22 @@ contract CollateralFunds {
      * @param _amountTokens  amountToken user wants to Mint
      * @dev Firstly: 1 Token = Avax, Later: 1 Token = c ratio * real asset price
      */
-    function mintERC20Tokens(uint256 _amountTokens ) external {
-        require(collateralFundedByAddress[msg.sender] >= _amountTokens  * 1 ether, "Not enough capital deposited");
+    function mintERC20Tokens(uint256 _amountTokens) external {
+        require(
+            collateralFundedByAddress[msg.sender] >= _amountTokens * 1 ether,
+            "Not enough capital deposited"
+        );
         Hub hub = Hub(hubAddress);
-        hub.mintSynthAsset(msg.sender, _amountTokens );
+        hub.mintSynthAsset(msg.sender, _amountTokens);
     }
+}
 
+interface ERC20Token {
+    function transfer(address receiverAddress, uint amount) external returns (bool);
+    function transferFrom(address senderAddress, address receiverAddress, uint amount) external returns (bool);
+    function balanceOf(address userAddress) external view returns (uint);
 }
 
 interface Hub {
-    function mintSynthAsset(address _reciever, uint256 _amount) external;
+    function mintSynthAsset(address receiver, uint256 amount) external;
 }
