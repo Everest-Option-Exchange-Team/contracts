@@ -75,6 +75,28 @@ contract Hub {
 
     // TODO: implement burnSynthAsset, incl. updating userAddressToOpenSynthPositions
 
+    function burnSynthAsset(address _receiver, uint256 _amount, string memory _tickerSymbol) public {
+        ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).burn(_receiver, _amount);
+        if (_amount == ISyntheticAsset(tickersymbolToSynthAssetContractAddress[_tickerSymbol]).getUserToSynthAssetEligibleToBurn(_receiver)){
+            string[] memory openSynthPositions = userAddressToOpenSynthPositions[_receiver];
+            string[] memory keepSynths = new string[](openSynthPositions.length - 1);
+            bool isElementFound = false;
+            for(uint256 i = 0; i < openSynthPositions.length; i++){
+                if (keccak256(bytes(openSynthPositions[i])) != keccak256(bytes(_tickerSymbol))) {
+                    // If you don't want to leave a gap, you need to move each element manually
+                    if (isElementFound) {
+                        keepSynths[i-1] = openSynthPositions[i];
+                    } else {
+                        keepSynths[i] = openSynthPositions[i];
+                    }
+                } else {
+                    isElementFound = true;
+                }
+            }
+            userAddressToOpenSynthPositions[_receiver] = keepSynths;
+        }
+    }
+
     /**
      * @notice sets the contract address of on sythetic asset (e.g synthTSLA)
      * @param _synthAssetAddress contract address
@@ -186,7 +208,6 @@ contract Hub {
     }
 
     function liquidateUSDCOfUser(uint256 _eligbleToBurn_t_2_1, address _user, string memory _tickerSymbol) internal returns(uint256) {
-        // TODO: implement formula 2), use num(eligbleToBurn, t=2.1) from reduceSynthAssetEligibleToBurn and num(eligibleToBurn, t=2) from userToSynthAssetEligibleToBurn
         // collateral at t=1 which is equal to t=2
         uint256 collateral_t_1 = collateralFundsContract.getCollateralFundedByAddress(_user);
         // asset price at t=2 equal to t=2.1
@@ -219,6 +240,8 @@ interface ISyntheticAsset {
     function setUserToSynthAssetEligibleToBurn(address _user, uint256 _amount) external;
 
     function mint(address _to, uint256 _amount) external;
+
+    function burn(address _userAddress, uint _amount) external;
 }
 
 interface ICollateralFunds {

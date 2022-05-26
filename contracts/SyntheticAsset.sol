@@ -65,9 +65,8 @@ contract SyntheticAsset is ERC20 {
      //slither-disable-next-line naming-convention
     function burn(address _userAddress, uint _amount) external onlyHub {
         require(_amount <= userToSynthAssetEligibleToBurn[_userAddress], "The user has not enough assets");
-
-        _burn(_userAddress, _amount);
         userToSynthAssetEligibleToBurn[_userAddress] -= _amount;
+        _burn(_userAddress, _amount);
     }
 
     /**************************************** Getters ****************************************/
