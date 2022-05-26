@@ -151,7 +151,7 @@ describe("PriceTrackerV1 smart contract tests", () => {
 	});
 
 	describe("GetUSDCprice", () => {
-		it("Should get the USDC price", async() => {
+		it("Should get the USDC price", async () => {
 			const price = await priceTrackerContract.getUSDCPrice();
 			expect(price).to.equal(0);
 		});
@@ -172,26 +172,110 @@ describe("PriceTrackerV1 smart contract tests", () => {
 		});
 	});
 
-	// TODO: Test setHubAddress(), setAggregatorAddress() and setKeepersRegistryAddress().
-
-	describe("SetOracleAddress", () => {
-		it("Should update the oracle address", async () => {
-			const txn = await priceTrackerContract.setOracleAddress(temp.address);
+	describe("SetHubAddress", () => {
+		it("Should update the hub address", async () => {
+			// Update the address.
+			const txn = await priceTrackerContract.setHubAddress(temp.address);
 			await txn.wait();
+
+			// It should fail when updating with a null address.
+			await expect(priceTrackerContract.setHubAddress(ethers.constants.AddressZero))
+				.to.be.revertedWith("The address parameter cannot be null");
+
+			// It should fail when updating the address as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setHubAddress(temp.address)
+			).to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 
-	describe("SetJobID", () => {
-		it("Should update the job ID", async () => {
-			const txn = await priceTrackerContract.setJobId(ethers.constants.HashZero);
+	describe("SetAggregatorAddress", () => {
+		it("Should update the aggregator address", async () => {
+			// Update the address.
+			const txn = await priceTrackerContract.setAggregatorAddress(temp.address);
 			await txn.wait();
+
+			// It should fail when updating with a null address.
+			await expect(priceTrackerContract.setAggregatorAddress(ethers.constants.AddressZero))
+				.to.be.revertedWith("The address parameter cannot be null");
+
+			// It should fail when updating the address as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setAggregatorAddress(temp.address)
+			).to.be.revertedWith("Only the owner can call this method");
+		});
+	});
+
+	describe("SetKeepersRegistryAddress", () => {
+		it("Should update the keepers registry address", async () => {
+			// Update the address.
+			const txn = await priceTrackerContract.setKeepersRegistryAddress(temp.address);
+			await txn.wait();
+
+			// It should fail when updating with a null address.
+			await expect(priceTrackerContract.setKeepersRegistryAddress(ethers.constants.AddressZero))
+				.to.be.revertedWith("The address parameter cannot be null");
+
+			// It should fail when updating the address as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setKeepersRegistryAddress(temp.address)
+			).to.be.revertedWith("Only the owner can call this method");
+		});
+	});
+
+	describe("SetOracleAddress", () => {
+		it("Should update the oracle address", async () => {
+			// Update the address.
+			const txn = await priceTrackerContract.setOracleAddress(temp.address);
+			await txn.wait();
+
+			// It should fail when updating with a null address.
+			await expect(priceTrackerContract.setOracleAddress(ethers.constants.AddressZero))
+				.to.be.revertedWith("The address parameter cannot be null");
+
+			// It should fail when updating the address as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setOracleAddress(temp.address)
+			).to.be.revertedWith("Only the owner can call this method");
+		});
+	});
+
+	describe("SetJobId", () => {
+		it("Should update the job id", async () => {
+			// Update the job id.
+			const txn = await priceTrackerContract.setJobId(hre.ethers.utils.randomBytes(32));
+			await txn.wait();
+
+			// It should fail when updating with an empty bytes32.
+			// However, it's not possible test.
+
+			// It should fail when updating the job id as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setJobId(hre.ethers.utils.randomBytes(32))
+			).to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 
 	describe("SetAPIKey", () => {
-		it("Should update the api key", async () => {
-			const txn = await priceTrackerContract.setApiKey("test");
+		it("Should update the API key", async () => {
+			// Update the API key.
+			const txn = await priceTrackerContract.setApiKey("my-api-key");
 			await txn.wait();
+
+			// It should fail when updating with an empty string.
+			await expect(priceTrackerContract.setApiKey(""))
+				.to.be.revertedWith("The string parameter cannot be empty");
+
+			// It should fail when updating the api key as any user.
+			await expect(priceTrackerContract
+				.connect(user)
+				.setApiKey("my-api-key")
+			).to.be.revertedWith("Only the owner can call this method");
 		});
 	});
 });
