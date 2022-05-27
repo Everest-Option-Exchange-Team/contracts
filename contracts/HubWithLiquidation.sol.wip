@@ -15,6 +15,7 @@ contract HubV1 {
 
     // Contract addresses
     ICollateralFunds public collateralFundsContract;
+    address public collateralFundsAddress;
     IStorage public storageContract;
     ISwap public swapContract;
     IUniswapV3Factory public factory;
@@ -191,7 +192,7 @@ contract HubV1 {
             if (ratio < 150) {
                 (uint256 eligbleToBurn_t_2_1, uint256 assetAmountToBuyOnUniswapAndBurn) = reduceSynthAssetEligibleToBurn(largestPosition.tickerSymbol, users[i], collateralValue);
                 uint256 usdcAmountToTakeAway = liquidateUSDCOfUser(eligbleToBurn_t_2_1, users[i], largestPosition.tickerSymbol);
-                swapUSDCsAsset();
+                swapUSDCsAsset(usdcAmountToTakeAway, largestPosition.tickerSymbol);
             }
         }
     }
@@ -235,8 +236,14 @@ contract HubV1 {
         return usdcAmountToTakeAway;
     }
 
-    function swapUSDCsAsset() internal {
-        // TOOD: implement swapping and burn receiving sAsset
+    function swapUSDCsAsset(uint256 _amount, string memory _tickerSymbol) internal {
+        collateralFundsContract.allowLiquidation(uint256 _amount); 
+        // the synthetic asset belong now to the collateralFundsContract
+        uint256 amountSynthAsset = swap.swapExactInputSingle(_amount, _tickerSymbol);
+        address sAssetAddress = tickersymbolToSynthAssetContractAddress[_tickerSymbol];
+        ISyntheticAsset sAsset = ISyntheticAsset(sAssetAddress);
+        // burn the synthetic asset which belong to the collateralFundsContract
+        sAsset.burn(collateralFundsAddress, _amount);
     }
 
 }
@@ -259,6 +266,8 @@ interface ICollateralFunds {
     function getCollateralFundedByAddress(address _addr) external view returns (uint256);
 
     function setCollateralFundedByAddress(address _user, uint256 _amount) external;
+
+    function allowLiquidation(uint256 _amount) external; 
 }
 
 interface IStorage {
