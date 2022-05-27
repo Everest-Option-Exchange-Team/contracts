@@ -30,9 +30,8 @@ Then populate it with:
 - Compile: `$ npm run compile`
 - Test: `$ npm run test`
 - Deploy:
-    - On localhost: `$ npm run <deploy-fund|deploy-price-tracker>`
-    - On any other network: `$ npm run <deploy-fund|deploy-price-tracker> -- --network <network>`\
-      For example on fuji testnet: `$ npm run deploy-fund -- --network fuji`
+    - On localhost: `$ npm run <deploy-collateral-fund|deploy-price-tracker>`
+    - On any other network: `$ npm run <deploy-collateral-fund|deploy-price-tracker> -- --network <network>`
 - Audit:
     - Slither: `$ npm run slither`
     - Mythril: `$ npm run mythril`

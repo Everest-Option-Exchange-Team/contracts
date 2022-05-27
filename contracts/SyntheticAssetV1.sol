@@ -5,10 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title Synthetic asset contract extending the ERC20 token specification.
- * @author The Everest team.
+ * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
  */
 contract SyntheticAssetV1 is ERC20 {
-    mapping(address => uint256) public userToSynthAssetEligibleToBurn;
+    // Synthetic asset parameters.
+    mapping(address => uint256) public addressToAmountEligibleToBurn;
 
     // Access-control parameters.
     address public owner;
@@ -26,20 +27,18 @@ contract SyntheticAssetV1 is ERC20 {
     }
 
     // Events
+    event Mint(address indexed addr, uint256 amount);
+    event Burn(address indexed addr, uint256 amount);
     event HubAddressUpdated(address oldAddress, address newAddress);
 
     /**
      * @notice Initialise a new synthetic asset contract.
      * @param _name the name of new ERC20 token.
-     * @param _symbol the tickerSymbol of new ERC20 token.
+     * @param _symbol the ticker symbol of new ERC20 token.
      * @param _hubAddress the address of the hub.
      */
-     //slither-disable-next-line naming-convention
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _hubAddress
-    ) ERC20(_name, _symbol) {
+    //slither-disable-next-line naming-convention
+    constructor(string memory _name, string memory _symbol, address _hubAddress) ERC20(_name, _symbol) {
         owner = msg.sender;
         hubAddress = _hubAddress;
     }
@@ -51,10 +50,14 @@ contract SyntheticAssetV1 is ERC20 {
      * @param _userAddress the address of the user.
      * @param _amount the amount of assets that gets minted.
      */
-     //slither-disable-next-line naming-convention
+    //slither-disable-next-line naming-convention
     function mint(address _userAddress, uint256 _amount) external onlyHub {
+        require(_userAddress != address(0), "The address parameter cannot be null");
+        require(_amount > 0, "Amount should be greator than zero");
+
         _mint(_userAddress, _amount);
-        userToSynthAssetEligibleToBurn[_userAddress] += _amount;
+        addressToAmountEligibleToBurn[_userAddress] += _amount;
+        emit Mint(_userAddress, _amount);
     }
 
     /**
@@ -62,11 +65,15 @@ contract SyntheticAssetV1 is ERC20 {
      * @param _userAddress the address of the user.
      * @param _amount the amount of assets that gets burnt.
      */
-     //slither-disable-next-line naming-convention
+    //slither-disable-next-line naming-convention
     function burn(address _userAddress, uint _amount) external onlyHub {
-        require(_amount <= userToSynthAssetEligibleToBurn[_userAddress], "The user has not enough assets");
-        userToSynthAssetEligibleToBurn[_userAddress] -= _amount;
+        require(_userAddress != address(0), "The address parameter cannot be null");
+        require(_amount > 0, "Amount should be greator than zero");
+        require(_amount <= addressToAmountEligibleToBurn[_userAddress], "The user has not enough assets");
+
         _burn(_userAddress, _amount);
+        addressToAmountEligibleToBurn[_userAddress] -= _amount;
+        emit Burn(_userAddress, _amount);
     }
 
     /**************************************** Getters ****************************************/
@@ -74,11 +81,12 @@ contract SyntheticAssetV1 is ERC20 {
     /**
      * @notice Return the amount of synthetic asset a user is elligible to burn.
      * @param _userAddress the address of the user.
-     * @return _ the amount of synthetic asset elligible to be burnt.
+     * @return _ the amount of synthetic asset the user is elligible to burn.
      */
-     //slither-disable-next-line naming-convention
-    function getUserToSynthAssetEligibleToBurn(address _userAddress) external view returns (uint256) {
-        return userToSynthAssetEligibleToBurn[_userAddress];
+    //slither-disable-next-line naming-convention
+    function getAmountEligibleToBurn(address _userAddress) external view returns (uint256) {
+        require(_userAddress != address(0), "The address parameter cannot be null");
+        return addressToAmountEligibleToBurn[_userAddress];
     }
 
     /**************************************** Setters ****************************************/
@@ -86,18 +94,20 @@ contract SyntheticAssetV1 is ERC20 {
     /**
      * @notice Update the amount of synthetic asset a user is elligible to burn.
      * @param _userAddress the address of the user.
-     * @param _amount the amount the user is elligible to burn.
+     * @param _amount the amount of synthetic asset the user is elligible to burn.
+     * @dev This method is used to liquidate users.
      */
-     //slither-disable-next-line naming-convention
-    function setUserToSynthAssetEligibleToBurn(address _userAddress, uint256 _amount) external onlyHub {
-        userToSynthAssetEligibleToBurn[_userAddress] = _amount;
+    //slither-disable-next-line naming-convention
+    function setAmountEligibleToBurn(address _userAddress, uint256 _amount) external onlyHub {
+        require(_userAddress != address(0), "The address parameter cannot be null");
+        addressToAmountEligibleToBurn[_userAddress] = _amount;
     }
 
     /**
      * @notice Update the hub address.
      * @param _hubAddress the new hub address.
      */
-     //slither-disable-next-line naming-convention
+    //slither-disable-next-line naming-convention
     function setHubAddress(address _hubAddress) external onlyOwner {
         require(_hubAddress != address(0), "The address parameter cannot be null");
 

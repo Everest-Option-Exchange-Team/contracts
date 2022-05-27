@@ -1,6 +1,11 @@
 const hre = require("hardhat");
 
-// Parameters used to deploy the PriceTracker smart contract.
+// Common parameters for all the smart contracts.
+const commonConfig = {
+    hubAddress: hre.ethers.constants.AddressZero,
+}
+
+// Parameters used to deploy the PriceTrackerV1 smart contract.
 const priceTrackerConfig = {
     // Common parameters.
     common: {
@@ -34,6 +39,36 @@ const priceTrackerConfig = {
     },
 };
 
+// Parameters used to deploy the CollateralFundV1 smart contract.
+const collateralFundConfig = {
+    // Network-specific parameters.
+    network: {
+        42: { // Kovan testnet.
+            usdcTokenAddress: "0xc2569dd7d0fd715B054fBf16E75B001E5c0C1115",
+        },
+        43113: { // Fuji testnet.
+            usdcTokenAddress: "0x0950fc1ad509358daead5eb8020a3c7d8b43b9da",
+        },
+    },
+};
+
+// Parameters used to deploy the HubV1 smart contract.
+const hubConfig = {
+    // Network-specific parameters.
+    network: {
+        42: { // Kovan testnet.
+            uniswapFactoryV3: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+        },
+        43113: { // Fuji testnet.
+            // TODO: Find an alternative to Uniswap Factory on Fuji testnet.
+            usdcTokenAddress: hre.ethers.constants.AddressZero,
+        },
+    },
+};
+
 module.exports = {
-    priceTrackerConfig
+    commonConfig,
+    priceTrackerConfig,
+    collateralFundConfig,
+    hubConfig,
 };
