@@ -31,6 +31,7 @@ contract CollateralFundV1 {
     event Withdraw(address indexed addr, uint256 amount, uint256 updatedUserCollateralAmount);
     event CollateralAmountUpdated(address indexed addr, uint256 previousAmount, uint256 newAmount);
     event NewFunder(address addr);
+    event RemoveFunder(address addr);
     event USDCTokenAddressUpdated(address oldAddress, address newAddress);
     event HubAddressUpdated(address oldAddress, address newAddress);
 
@@ -84,6 +85,17 @@ contract CollateralFundV1 {
         usdcContract.transfer(msg.sender, _amount);
         addressToCollateralAmount[msg.sender] -= _amount;
         emit Deposit(msg.sender, _amount, addressToCollateralAmount[msg.sender]);
+
+        // Remove the burner from the funders list if his balance is equal to 0.
+        if (addressToCollateralAmount[msg.sender] == 0) {
+            addressToFunderStatus[msg.sender] = false;
+            for (uint256 i = 0; i < funders.length; i++) {
+                if (funders[i] == msg.sender) {
+                    delete funders[i];
+                    emit RemoveFunder(msg.sender);
+                }
+            }
+        }
     }
 
     /**************************************** Getters ****************************************/

@@ -95,6 +95,26 @@ describe("CollateralFundV1 smart contract tests", () => {
             fundBalance = await usdcTokenContract.balanceOf(collateralFundContract.address);
             expect(fundBalance).to.equal(90);
 
+            // Check that the user is a funder.
+            let funders = await collateralFundContract.getFunders();
+            expect(funders.includes(owner.address)).to.be.true;
+
+            // It should fail when a user tries to withdraw more USDC than what he deposited to the fund.
+            await expect(collateralFundContract.withdraw(1000))
+                .to.be.revertedWith("The user cannot withdraw more than what he deposited");
+
+            // Withdraw all of the remaining deposited collateral.
+            txn = await collateralFundContract.withdraw(90);
+            await txn.wait();
+
+            // Check that the user is no longer a funder.
+            funders = await collateralFundContract.getFunders();
+            expect(funders.includes(owner.address)).to.be.false;
+
+            // It should fail when a user tries to withdraw USDC even though he haven't deposited anything to the fund.
+            await expect(collateralFundContract.withdraw(1000))
+                .to.be.revertedWith("The user has not deposited any collateral to the fund");
+
             // It should fail when trying to withdraw zero USDC to the fund.
             await expect(collateralFundContract.withdraw(0))
                 .to.be.revertedWith("Amount should be greator than zero");
@@ -102,10 +122,6 @@ describe("CollateralFundV1 smart contract tests", () => {
             // It should fail when a user that has not deposited tries to withdraw USDC from the fund.
             await expect(collateralFundContract.connect(user).withdraw(100))
                 .to.be.revertedWith("The user has not deposited any collateral to the fund");
-
-            // It should fail when a user tries to withdraw more USDC than what he deposited to the fund.
-            await expect(collateralFundContract.withdraw(1000))
-                .to.be.revertedWith("The user cannot withdraw more than what he deposited");
         });
     });
 
