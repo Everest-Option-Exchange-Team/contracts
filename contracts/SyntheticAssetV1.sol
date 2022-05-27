@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * @title Synthetic asset contract extending the ERC20 token specification.
  * @author The Everest team.
  */
-contract SyntheticAsset is ERC20 {
+contract SyntheticAssetV1 is ERC20 {
     mapping(address => uint256) public userToSynthAssetEligibleToBurn;
 
     // Access-control parameters.

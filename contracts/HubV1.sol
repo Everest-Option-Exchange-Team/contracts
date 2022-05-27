@@ -7,7 +7,7 @@ pragma solidity ^0.8.7;
  * and liquidate addresses if the collateral ratio falls below 150%
  * @author The Everest team.
  */
-contract Hub {
+contract HubV1 {
     // Access-control parameters.
     address public owner;
 
