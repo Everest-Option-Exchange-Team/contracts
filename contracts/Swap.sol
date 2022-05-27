@@ -6,12 +6,6 @@ import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
 contract Swap {
-    // For the scope of these swap examples,
-    // we will detail the design considerations when using
-    // `exactInput`, `exactInputSingle`, `exactOutput`, and  `exactOutputSingle`.
-
-    // It should be noted that for the sake of these examples, we purposefully pass in the swap router instead of inherit the swap router for simplicity.
-    // More advanced example contracts will detail how to inherit the swap router safely.
 
     ISwapRouter public immutable swapRouter;
     address public hubAddress = 0x93A...;
@@ -20,7 +14,7 @@ contract Swap {
 
     address public USDCKovan = 0xe22da380ee6B445bb8273C81944ADEB6E8450422;
 
-    // For this example, we will set the pool fee to 0.3%.
+    // we will set the pool fee to 0.3%.
     uint24 public constant poolFee = 3000;
 
     constructor(ISwapRouter _swapRouter) {
@@ -64,7 +58,7 @@ contract Swap {
         // Approve the router to spend DAI.
         TransferHelper.safeApprove(DAI, address(swapRouter), amountIn);
 
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // Naively set amountOutMinimum to 0. if time we should use an oracle or other data source to choose a safer value for amountOutMinimum.
         // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
         ISwapRouter.ExactInputSingleParams memory params =
             ISwapRouter.ExactInputSingleParams({
@@ -78,7 +72,7 @@ contract Swap {
                 sqrtPriceLimitX96: 0
             });
 
-        // The call to `exactInputSingle` executes the swap.
+        // executes the swap.
         amountOut = swapRouter.exactInputSingle(params);
     }
 }
