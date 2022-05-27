@@ -95,6 +95,7 @@ contract SyntheticAssetV1 is ERC20 {
      * @notice Update the amount of synthetic asset a user is elligible to burn.
      * @param _userAddress the address of the user.
      * @param _amount the amount of synthetic asset the user is elligible to burn.
+     * @dev This method is used to liquidate users.
      */
     //slither-disable-next-line naming-convention
     function setAmountEligibleToBurn(address _userAddress, uint256 _amount) external onlyHub {
