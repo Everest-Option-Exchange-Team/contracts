@@ -5,6 +5,12 @@ coverage.json
 typechain
 .DS_STORE
 
-# hardhat files
+# Hardhat files.
 cache
-artifacts
+
+# Only keep important contracts' ABIs.
+artifacts/*
+artifacts/contracts/mocks
+!artifacts/contracts
+artifacts/contracts/*/*.dbg.json
+!artifacts/contracts/*/*V1.json
