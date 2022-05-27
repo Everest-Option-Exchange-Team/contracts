@@ -121,7 +121,9 @@ contract CollateralFunds {
     }
 }
 
-interface ERC20Token {
+// Interfaces
+
+interface IERC20 {
     function transfer(address receiverAddress, uint amount) external returns (bool);
     function transferFrom(address senderAddress, address receiverAddress, uint amount) external returns (bool);
     function balanceOf(address userAddress) external view returns (uint);
