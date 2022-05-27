@@ -13,7 +13,7 @@ describe("CollateralFundV1 smart contract tests", () => {
         usdcTokenContract = await usdcTokenContractFactory.deploy(100000);
         await usdcTokenContract.deployed();
 
-        // Deploy the CollateralFundV1 collateralFundContract.
+        // Deploy the CollateralFundV1 contract.
         const collateralFundContractFactory = await hre.ethers.getContractFactory("CollateralFundV1");
         collateralFundContract = await collateralFundContractFactory.deploy(usdcTokenContract.address, hub.address);
         await collateralFundContract.deployed();
