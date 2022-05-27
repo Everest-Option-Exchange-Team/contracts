@@ -143,6 +143,8 @@ describe("SyntheticAssetV1 smart contract tests", () => {
       expect(amountElligibleToBurn).to.equal(0);
 
       // Update the owner's synthetic TSLA balance to 100.
+      // Note: this is not how this method is supposed to be used, this method should only be called when
+      // the hub has to liquidate a user.
       const txn = await syntheticTSLAContract.connect(hub).setAmountEligibleToBurn(owner.address, 100);
       await txn.wait();
 
