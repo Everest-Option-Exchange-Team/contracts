@@ -1,4 +1,4 @@
-// Deploy and verify the PriceTrackerV1 on the specified network.
+// Deploy and verify the PriceTrackerV1 contract on the specified network.
 // It also handles localhost deployments.
 const hre = require("hardhat");
 require("dotenv").config();
@@ -6,13 +6,12 @@ require("dotenv").config();
 const { priceTrackerConfig } = require("../helper.config");
 
 async function main() {
-	let linkTokenAddress, aggregatorAddress, oracleAddress, jobId;
-
 	// Common parameters.
 	const apiKey = priceTrackerConfig.common.apiKey;
 	const updateInterval = priceTrackerConfig.common.updateInterval;
 
 	// Network-specific parameters.
+	let linkTokenAddress, aggregatorAddress, oracleAddress, jobId;
 	if (hre.network.config.chainId == 31337) {
 		// The contract is deployed on localhost so we deploy the mock contracts.
 

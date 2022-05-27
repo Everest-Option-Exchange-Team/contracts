@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 /**
- * @title PriceTrackerV1 contract that retrieves USDC and asset prices.
+ * @title Contract that retrieves USDC and asset prices using Chainlink oracle.
  * @dev The contract uses multiple oracle Chainlink products to expose the most reliable data possible.
  * Of course, the ideal would be to diversify the sources and thus to explore the possibilities of other
  * oracles but that was well beyond the scope of the hackathon.
@@ -14,7 +14,7 @@ import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
  * - Chainlink Data Feeds to obtain the price of the USDC/USD pair.
  * - Chainlink External Adapters and the Alpha Vantage API  to obtain the USD price of assets (stocks, commodities, etc.).
  * - Chainlnk Keepers to update the prices periodically.
- * @author The Everest team.
+ * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
  */
 contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     using Chainlink for Chainlink.Request;
@@ -24,7 +24,6 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
 
     // Chainlink external adapter parameters.
     uint256 constant private FEE = 0.1 * 10 ** 18; // 0.1 LINK
-    address public owner;
     address internal oracleAddress;
     bytes32 internal jobId;
     string private apiKey;
@@ -47,6 +46,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     string[] public assetList;
 
     // Access-control parameters.
+    address public owner;
     address public hubAddress;
     address public aggregatorAddress;
     address public keepersRegistryAddress;
@@ -383,7 +383,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      * @param _price the new asset price.
      * @dev This is only for test purposes, we'll remove this function before deploying.
      */
-    function setAssetPrice(string memory _asset, uint256 _price) public onlyOwner strNotEmpty(_asset) {
+    function setAssetPrice(string memory _asset, uint256 _price) external onlyOwner strNotEmpty(_asset) {
         require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
 
     	assetToPrice[_asset].price = _price;
