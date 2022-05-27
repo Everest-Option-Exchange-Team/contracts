@@ -52,8 +52,23 @@ const collateralFundConfig = {
     },
 };
 
+// Parameters used to deploy the HubV1 smart contract.
+const hubConfig = {
+    // Network-specific parameters.
+    network: {
+        42: { // Kovan testnet.
+            uniswapFactoryV3: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+        },
+        43113: { // Fuji testnet.
+            // TODO: Find an alternative to Uniswap Factory on Fuji testnet.
+            usdcTokenAddress: hre.ethers.constants.AddressZero,
+        },
+    },
+};
+
 module.exports = {
     commonConfig,
     priceTrackerConfig,
     collateralFundConfig,
+    hubConfig,
 };
