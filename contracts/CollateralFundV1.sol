@@ -142,7 +142,7 @@ contract CollateralFundV1 {
      //slither-disable-next-line naming-convention
     function setUsdcAddress(address _usdcAddress) external onlyOwner {
         require(_usdcAddress != address(0), "The address parameter cannot be null");
-        emit HubAddressUpdated(usdcAddress, _usdcAddress);
+        emit USDCTokenAddressUpdated(usdcAddress, _usdcAddress);
         usdcAddress = _usdcAddress;
         usdcContract = IERC20(_usdcAddress);
     }
