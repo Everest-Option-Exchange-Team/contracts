@@ -6,12 +6,12 @@ require("dotenv").config();
 const { commonConfig, collateralFundConfig } = require("../helper.config");
 
 async function main() {
-  // Common parameters.
-  const hubAddress = commonConfig.hubAddress;
+	// Common parameters.
+	const hubAddress = commonConfig.hubAddress;
 
-  // Network-specific parameters.
-  let usdcTokenAddress;
-  if (hre.network.config.chainId == 31337) {
+	// Network-specific parameters.
+	let usdcTokenAddress;
+	if (hre.network.config.chainId == 31337) {
 		// The contract is deployed on localhost so we deploy the mock contracts.
 
 		// Deploy the MockUsdcToken contract.
@@ -26,7 +26,7 @@ async function main() {
 		usdcTokenAddress = collateralFundConfig.network[chainId].usdcTokenAddress;
 	}
 
-  // Deploy the contract.
+	// Deploy the contract.
 	const collateralFundFactory = await hre.ethers.getContractFactory("CollateralFundV1");
 	const collateralFundContract = await collateralFundFactory.deploy(usdcTokenAddress, hubAddress);
 	await collateralFundContract.deployed();
@@ -39,8 +39,8 @@ async function main() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});

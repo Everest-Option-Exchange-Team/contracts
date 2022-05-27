@@ -10,8 +10,8 @@ describe("CollateralFundV1 smart contract tests", () => {
 
         // Deploy the MockUSDCToken contract.
         const usdcTokenContractFactory = await hre.ethers.getContractFactory("USDCToken");
-		usdcTokenContract = await usdcTokenContractFactory.deploy(100000);
-		await usdcTokenContract.deployed();
+        usdcTokenContract = await usdcTokenContractFactory.deploy(100000);
+        await usdcTokenContract.deployed();
 
         // Deploy the CollateralFundV1 collateralFundContract.
         const collateralFundContractFactory = await hre.ethers.getContractFactory("CollateralFundV1");
@@ -55,7 +55,7 @@ describe("CollateralFundV1 smart contract tests", () => {
 
             // It should fail when trying to deposit zero USDC to the fund.
             await expect(collateralFundContract.deposit(0))
-				.to.be.revertedWith("Amount should be greator than zero");
+                .to.be.revertedWith("Amount should be greator than zero");
         });
     })
 
@@ -97,12 +97,12 @@ describe("CollateralFundV1 smart contract tests", () => {
 
             // It should fail when trying to withdraw zero USDC to the fund.
             await expect(collateralFundContract.withdraw(0))
-				.to.be.revertedWith("Amount should be greator than zero");
-            
+                .to.be.revertedWith("Amount should be greator than zero");
+
             // It should fail when a user that has not deposited tries to withdraw USDC from the fund.
             await expect(collateralFundContract.connect(user).withdraw(100))
                 .to.be.revertedWith("The user has not deposited any collateral to the fund");
-            
+
             // It should fail when a user tries to withdraw more USDC than what he deposited to the fund.
             await expect(collateralFundContract.withdraw(1000))
                 .to.be.revertedWith("The user cannot withdraw more than what he deposited");
@@ -164,58 +164,58 @@ describe("CollateralFundV1 smart contract tests", () => {
     /**************************************** Setters ****************************************/
 
     describe("SetUserCollateralAmount", () => {
-		it("Should update the user collateral amount", async () => {
+        it("Should update the user collateral amount", async () => {
             // Check that the user collateral amount is empty.
             let amountDeposited = await collateralFundContract.getUserCollateralAmount(user.address);
             expect(amountDeposited).to.equal(0);
 
-			// Update the collateral amount.
-			const txn = await collateralFundContract.connect(hub).setUserCollateralAmount(user.address, 100);
-			await txn.wait();
+            // Update the collateral amount.
+            const txn = await collateralFundContract.connect(hub).setUserCollateralAmount(user.address, 100);
+            await txn.wait();
 
             // Check that the user collateral amount has been updated.
             amountDeposited = await collateralFundContract.getUserCollateralAmount(user.address);
             expect(amountDeposited).to.equal(100);
 
-			// It should fail when updating with a null address.
-			await expect(collateralFundContract.connect(hub).setUserCollateralAmount(ethers.constants.AddressZero, 100))
-				.to.be.revertedWith("The address parameter cannot be null");
+            // It should fail when updating with a null address.
+            await expect(collateralFundContract.connect(hub).setUserCollateralAmount(ethers.constants.AddressZero, 100))
+                .to.be.revertedWith("The address parameter cannot be null");
 
-			// It should fail when updating the collateral amount as any user.
-			await expect(collateralFundContract.setUserCollateralAmount(user.address, 100))
+            // It should fail when updating the collateral amount as any user.
+            await expect(collateralFundContract.setUserCollateralAmount(user.address, 100))
                 .to.be.revertedWith("Only the hub can call this method");
-		});
-	});
+        });
+    });
 
     describe("SetUsdcAddress", () => {
-		it("Should update the usdc address", async () => {
-			// Update the USDC address.
-			const txn = await collateralFundContract.setUsdcAddress(temp.address);
-			await txn.wait();
+        it("Should update the usdc address", async () => {
+            // Update the USDC address.
+            const txn = await collateralFundContract.setUsdcAddress(temp.address);
+            await txn.wait();
 
-			// It should fail when updating with a null address.
-			await expect(collateralFundContract.setUsdcAddress(ethers.constants.AddressZero))
-				.to.be.revertedWith("The address parameter cannot be null");
+            // It should fail when updating with a null address.
+            await expect(collateralFundContract.setUsdcAddress(ethers.constants.AddressZero))
+                .to.be.revertedWith("The address parameter cannot be null");
 
-			// It should fail when updating the address as any user.
-			await expect(collateralFundContract.connect(user).setUsdcAddress(temp.address))
+            // It should fail when updating the address as any user.
+            await expect(collateralFundContract.connect(user).setUsdcAddress(temp.address))
                 .to.be.revertedWith("Only the owner can call this method");
-		});
-	});
+        });
+    });
 
     describe("SetHubAddress", () => {
-		it("Should update the hub address", async () => {
-			// Update the address.
-			const txn = await collateralFundContract.setHubAddress(temp.address);
-			await txn.wait();
+        it("Should update the hub address", async () => {
+            // Update the address.
+            const txn = await collateralFundContract.setHubAddress(temp.address);
+            await txn.wait();
 
-			// It should fail when updating with a null address.
-			await expect(collateralFundContract.setHubAddress(ethers.constants.AddressZero))
-				.to.be.revertedWith("The address parameter cannot be null");
+            // It should fail when updating with a null address.
+            await expect(collateralFundContract.setHubAddress(ethers.constants.AddressZero))
+                .to.be.revertedWith("The address parameter cannot be null");
 
-			// It should fail when updating the address as any user.
-			await expect(collateralFundContract.connect(user).setHubAddress(temp.address))
+            // It should fail when updating the address as any user.
+            await expect(collateralFundContract.connect(user).setHubAddress(temp.address))
                 .to.be.revertedWith("Only the owner can call this method");
-		});
-	});
+        });
+    });
 });
