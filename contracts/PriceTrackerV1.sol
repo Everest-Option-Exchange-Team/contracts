@@ -55,7 +55,8 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     bool public paused;
 
     // Events
-    event PriceUpdated(bytes32 indexed requestId, uint256 price);
+    event AssetPriceUpdated(bytes32 indexed requestId, uint256 lastPrice, uint256 newPrice);
+    event UsdcPriceUpdated(int256 lastPrice, int256 newPrice);
     event Paused();
     event Unpaused();
     event Withdraw(address indexed addr, uint256 amount);
@@ -217,8 +218,8 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
      //slither-disable-next-line naming-convention
     function fulfill(bytes32 _requestId, uint256 _price) external recordChainlinkFulfillment(_requestId) {
         string memory asset = requestIdToAsset[_requestId];
+        emit AssetPriceUpdated(_requestId, assetToPrice[asset].price, _price);
     	assetToPrice[asset].price = _price;
-        emit PriceUpdated(_requestId, _price);
     }
 
     /**************************************** ChainLink Keepers ****************************************/
@@ -378,6 +379,16 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     /**************************************** For test purposes ****************************************/
 
     /**
+     * @notice Update the USDC/USD price.
+     * @param _price the new USDC/USD price.
+     * @dev This is only for test purposes, we'll remove this function before deploying.
+     */
+    function setUsdcPrice(int256 _price) external onlyOwner {
+        emit UsdcPriceUpdated(usdcPrice, _price);
+        usdcPrice = _price;
+    }
+
+    /**
      * @notice Update the price of any asset.
      * @param _asset the name of the asset.
      * @param _price the new asset price.
@@ -386,7 +397,7 @@ contract PriceTrackerV1 is ChainlinkClient, KeeperCompatibleInterface {
     function setAssetPrice(string memory _asset, uint256 _price) external onlyOwner strNotEmpty(_asset) {
         require(assetToPrice[_asset].exists, "The asset must already be registered in the contract");
 
+        emit AssetPriceUpdated("TEST", assetToPrice[_asset].price, _price);
     	assetToPrice[_asset].price = _price;
-        emit PriceUpdated("TEST", _price);
     }
 }
