@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
+pragma abicoder v2;
+
+import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
 /**
  * @title Contract that allows users to managed their collateral funds.
@@ -16,9 +19,16 @@ contract CollateralFundV1 {
     address public usdcAddress;
     IERC20 public usdcContract;
 
+    ISwapRouter public swapRouter;
+
     // Access-control parameters.
     address public owner;
     address public hubAddress;
+    address public swapAddress;
+
+    mapping(string => address) public tickerSymbolToAssetAddress;
+
+    uint24 public constant poolFee = 3000;
 
     // Modifiers
     modifier onlyOwner() {
@@ -41,11 +51,13 @@ contract CollateralFundV1 {
      * @param _hubAddress the address of the hub.
      */
     //slither-disable-next-line naming-convention
-    constructor(address _usdcAddress, address _hubAddress) {
+    constructor(address _usdcAddress, address _hubAddress, address _swapAddress) {
+        swapRouter = ISwapRouter(_swapRouterAddress);
         owner = msg.sender;
         usdcAddress = _usdcAddress;
         usdcContract = IERC20(_usdcAddress);
         hubAddress = _hubAddress;
+        swapAddress = _swapAddress;
     }
 
     /**************************************** Fund / Withdraw ****************************************/
@@ -98,6 +110,49 @@ contract CollateralFundV1 {
         }
     }
 
+    /**************************************** Liquidation ****************************************/
+
+    /// @notice swapExactInputSingle swaps a fixed amount of USDC for a maximum possible amount of synthetic asset
+    /// using the USDC/sAsset 0.3% pool by calling `exactInputSingle` in the swap router.
+    /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its DAI for this function to succeed.
+    /// @param _amountIn The exact amount of USDC that will be swapped for @param _tickerSymbol.
+    /// @param _tickerSymbol the ticker symbol for the synthetic asset that should be received
+    /// @return amountOut The amount of WETH9 received.
+    function swapExactInputSingle(uint256 _amountIn, string memory _tickerSymbol) external returns (uint256 amountOut) {
+
+        address tokenOut = Hub.getSynthAssetContractAddress(_tickerSymbol)
+        // Naively set amountOutMinimum to 0. if we have time we should use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: USDCKovan,
+                tokenOut: tokenOut,
+                fee: poolFee,
+                recipient: address(this)
+                deadline: block.timestamp,
+                amountIn: _amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+
+        // executes the swap.
+        amountOut = swapRouter.exactInputSingle(params);
+    }
+
+    /**
+     * @notice Update the amount of collateral deposited by a user.
+     * @param _userAddress the address of the user.
+     * @param _newCollateralAmount the new amount of collateral of the user.
+     * @dev This method is used by the Hub to liquidate users positions.
+     */
+    //slither-disable-next-line naming-convention
+    function setUserCollateralAmount(address _userAddress, uint256 _newCollateralAmount) external {
+        require(msg.sender == hubAddress, "Only the hub can call this method");
+        require(_userAddress != address(0), "The address parameter cannot be null");
+
+        emit CollateralAmountUpdated(_userAddress, addressToCollateralAmount[_userAddress], _newCollateralAmount);
+        addressToCollateralAmount[_userAddress] = _newCollateralAmount;
+    
     /**************************************** Getters ****************************************/
 
     /**
@@ -119,20 +174,6 @@ contract CollateralFundV1 {
     }
 
     /**************************************** Setters ****************************************/
-
-    /**
-     * @notice Update the amount of collateral deposited by a user.
-     * @param _userAddress the address of the user.
-     * @param _newCollateralAmount the new amount of collateral of the user.
-     * @dev This method is used by the Hub to liquidate users positions.
-     */
-    //slither-disable-next-line naming-convention
-    function setUserCollateralAmount(address _userAddress, uint256 _newCollateralAmount) external {
-        require(msg.sender == hubAddress, "Only the hub can call this method");
-        require(_userAddress != address(0), "The address parameter cannot be null");
-
-        emit CollateralAmountUpdated(_userAddress, addressToCollateralAmount[_userAddress], _newCollateralAmount);
-        addressToCollateralAmount[_userAddress] = _newCollateralAmount;
     }
 
     /**
@@ -165,4 +206,5 @@ interface IERC20 {
     function transfer(address receiverAddress, uint amount) external returns (bool);
     function transferFrom(address senderAddress, address receiverAddress, uint amount) external returns (bool);
     function balanceOf(address userAddress) external view returns (uint);
+    function approve(address spender, uint256 amount) external returns (bool);
 }
