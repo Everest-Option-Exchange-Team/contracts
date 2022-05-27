@@ -87,7 +87,7 @@ describe("CollateralFundV1 smart contract tests", () => {
             txn = await collateralFundContract.withdraw(10);
             await txn.wait();
 
-            // Check that the amount deposited by the user is equal to 50 USDC.
+            // Check that the amount deposited by the user is equal to 90 USDC.
             userCollateralAmount = await collateralFundContract.getUserCollateralAmount(owner.address);
             expect(userCollateralAmount).to.equal(90);
 
