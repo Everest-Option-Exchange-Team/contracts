@@ -6,118 +6,144 @@ pragma solidity ^0.8.7;
  * @dev For the moment, the only collateral accepted is the USDC.
  * @author The Everest team: https://github.com/Everest-Option-Exchange-Team.
  */
-contract CollateralFunds {
-    mapping(address => uint256) public collateralFundedByAddress;
-    uint256 public totalCollateral;
+contract CollateralFundV1 {
+    // Fund parameters.
+    mapping(address => uint256) public addressToCollateralAmount;
+    mapping(address => bool) public addressToFunderStatus; // It returns false if the user is not in the funders list.
     address[] public funders;
 
-    ERC20Token public usdcKovan; 
+    // USDC token parameters.
+    address public usdcAddress;
+    IERC20 public usdcContract;
 
     // Access-control parameters.
-    address hubAddress;
+    address public owner;
+    address public hubAddress;
 
     // Modifiers
-    modifier onlyHub() {
-        require(msg.sender == hubAddress, "Only the hub can call this method");
+    modifier onlyOwner() {
+        require (msg.sender == owner, "Only the owner can call this method");
         _;
     }
 
     // Events
-    event Deposit(address indexed _addr, uint256 _amount, uint256 _balance);
-    event Withdraw(address indexed _addr, uint256 _amount, uint256 _balance);
+    event Deposit(address indexed addr, uint256 amount, uint256 updatedUserCollateralAmount);
+    event Withdraw(address indexed addr, uint256 amount, uint256 updatedUserCollateralAmount);
+    event CollateralAmountUpdated(address indexed addr, uint256 previousAmount, uint256 newAmount);
+    event NewFunder(address addr);
+    event USDCTokenAddressUpdated(address oldAddress, address newAddress);
+    event HubAddressUpdated(address oldAddress, address newAddress);
 
     /**
      * @notice Initialise the contract.
+     * @param _usdcAddress the address of the USDC token contract.
      * @param _hubAddress the address of the hub.
      */
-    constructor(address _hubAddress) {
+    //slither-disable-next-line naming-convention
+    constructor(address _usdcAddress, address _hubAddress) {
+        owner = msg.sender;
+        usdcAddress = _usdcAddress;
+        usdcContract = IERC20(_usdcAddress);
         hubAddress = _hubAddress;
     }
 
+    /**************************************** Fund / Withdraw ****************************************/
+
     /**
-     * @notice Send collateral to the fund.
+     * @notice Deposit collateral to the fund.
+     * @param _amount the amount of USDC token send to the fund.
      */
-    function fund() external payable {
-        // TODO: change to USDC instead of Ether
-        collateralFundedByAddress[msg.sender] += msg.value;
-        totalCollateral += msg.value;
-        funders.push(msg.sender);
-        emit Deposit(
-            msg.sender,
-            msg.value,
-            collateralFundedByAddress[msg.sender]
-        );
+    //slither-disable-next-line naming-conventions
+    function deposit(uint256 _amount) external {
+        require(_amount > 0, "Amount should be greator than zero");
+
+        // Send the USDC from the user's wallet to the fund and update the user collateral amount.
+        usdcContract.transferFrom(msg.sender, address(this), _amount);
+        addressToCollateralAmount[msg.sender] += _amount;
+        emit Deposit(msg.sender, _amount, addressToCollateralAmount[msg.sender]);
+
+        // Add the sender to the funders list if he's not already in the list.
+        if (!addressToFunderStatus[msg.sender]) {
+            addressToFunderStatus[msg.sender] = true;
+            funders.push(msg.sender);
+            emit NewFunder(msg.sender);
+        }
     }
 
     /**
      * @notice Withdraw collateral from the fund.
      * @param _amount the amount to withdraw from the fund.
      */
-    function withdraw(uint256 _amount) external payable {
-        // TODO: change to USDC instead of Ether
-        require(
-            _amount <= collateralFundedByAddress[msg.sender],
-            "You can't withdraw more than what you deposited"
-        );
-        collateralFundedByAddress[msg.sender] -= _amount;
-        totalCollateral -= _amount;
-        emit Withdraw(
-            msg.sender,
-            _amount,
-            collateralFundedByAddress[msg.sender]
-        );
-        payable(msg.sender).transfer(_amount);
+    //slither-disable-next-line naming-convention
+    function withdraw(uint256 _amount) external {
+        require(_amount > 0, "Amount should be greator than zero");
+        require(addressToFunderStatus[msg.sender], "The user has not deposited any collateral to the fund");
+        require(_amount <= addressToCollateralAmount[msg.sender], "The user cannot withdraw more than what he deposited");
+
+        // Send the USDC from the fund to the user's wallet and update the user collateral amount.
+        usdcContract.transfer(msg.sender, _amount);
+        addressToCollateralAmount[msg.sender] -= _amount;
+        emit Deposit(msg.sender, _amount, addressToCollateralAmount[msg.sender]);
+    }
+
+    /**************************************** Getters ****************************************/
+
+    /**
+     * @notice Get the amount of collateral deposited by a user.
+     * @param _userAddress the address of the user.
+     * @return _ the amount deposited by the user.
+     */
+    //slither-disable-next-line naming-convention
+    function getUserCollateralAmount(address _userAddress) external view returns (uint256) {
+        return addressToCollateralAmount[_userAddress];
     }
 
     /**
-     * @notice Get the list of users who have funded the smart contract.
-     * @return _ the list of funders
+     * @notice Get the list of users who have deposited collateral to the fund.
+     * @return _ the list of funders.
      */
     function getFunders() external view returns (address[] memory) {
         return funders;
     }
 
+    /**************************************** Setters ****************************************/
+
     /**
-     * @notice Get the amount deposited by a user.
-     * @param _addr address
-     * @return _ amount deposited by a user
+     * @notice Update the amount of collateral deposited by a user.
+     * @param _userAddress the address of the user.
+     * @param _newCollateralAmount the new amount of collateral of the user.
+     * @dev This method is used by the Hub to liquidate users positions.
      */
     //slither-disable-next-line naming-convention
-    function getCollateralFundedByAddress(address _addr)
-        external
-        view
-        returns (uint256)
-    {
-        return collateralFundedByAddress[_addr];
-    }
+    function setUserCollateralAmount(address _userAddress, uint256 _newCollateralAmount) external {
+        require(msg.sender == hubAddress, "Only the hub can call this method");
+        require(_userAddress != address(0), "The address parameter cannot be null");
 
-    function setCollateralFundedByAddress(address _user, uint256 _amount)
-        public
-        onlyHub
-    {
-        collateralFundedByAddress[_user] = _amount;
-    }
-
-    /*
-     * @notice Get the total amount funded to this smart contract.
-     * @return _ the amount of the total funds
-     */
-    function getTotalCollateral() external view returns (uint256) {
-        return totalCollateral;
+        emit CollateralAmountUpdated(_userAddress, addressToCollateralAmount[_userAddress], _newCollateralAmount);
+        addressToCollateralAmount[_userAddress] = _newCollateralAmount;
     }
 
     /**
-     * @notice Check if user deposited required amount. Sends information to the hub.
-     * @param _amountTokens  amountToken user wants to Mint
-     * @dev Firstly: 1 Token = Avax, Later: 1 Token = c ratio * real asset price
+     * @notice Update the USDC token address.
+     * @param _usdcAddress the new USDC token address.
      */
-    function mintERC20Tokens(uint256 _amountTokens) external {
-        require(
-            collateralFundedByAddress[msg.sender] >= _amountTokens * 1 ether,
-            "Not enough capital deposited"
-        );
-        Hub hub = Hub(hubAddress);
-        hub.mintSynthAsset(msg.sender, _amountTokens);
+     //slither-disable-next-line naming-convention
+    function setUsdcAddress(address _usdcAddress) external onlyOwner {
+        require(_usdcAddress != address(0), "The address parameter cannot be null");
+        emit HubAddressUpdated(usdcAddress, _usdcAddress);
+        usdcAddress = _usdcAddress;
+        usdcContract = IERC20(_usdcAddress);
+    }
+
+    /**
+     * @notice Update the hub address.
+     * @param _hubAddress the new hub address.
+     */
+     //slither-disable-next-line naming-convention
+    function setHubAddress(address _hubAddress) external onlyOwner {
+        require(_hubAddress != address(0), "The address parameter cannot be null");
+        emit USDCTokenAddressUpdated(hubAddress, _hubAddress);
+        hubAddress = _hubAddress;
     }
 }
 
@@ -127,8 +153,4 @@ interface IERC20 {
     function transfer(address receiverAddress, uint amount) external returns (bool);
     function transferFrom(address senderAddress, address receiverAddress, uint amount) external returns (bool);
     function balanceOf(address userAddress) external view returns (uint);
-}
-
-interface Hub {
-    function mintSynthAsset(address receiver, uint256 amount) external;
 }
