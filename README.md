@@ -6,7 +6,7 @@
 ### Main contracts
 | Contract | Network  | Contract addres |
 | ---------| -------- | --------------- |
-| HubV1 | Kovan | Not deployed yet |
+| SimpleHubV1 | Kovan | [0x5B580Ec564FAF6FE2B95C6A316EF286D707e323d](https://kovan.etherscan.io/address/0x5B580Ec564FAF6FE2B95C6A316EF286D707e323d) |
 | CollateralFundV1 | Kovan | [0xdE4E6EFcaaEaa997A77b812eCE98739948391c51](https://kovan.etherscan.io/address/0xdE4E6EFcaaEaa997A77b812eCE98739948391c51) |
 | PriceTrackerV1 | Kovan | [0x243AfF679C667ddFCa073498b9EF804320C84bEB](https://kovan.etherscan.io/address/0x243AfF679C667ddFCa073498b9EF804320C84bEB) |
 
