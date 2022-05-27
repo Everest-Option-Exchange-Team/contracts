@@ -1,12 +1,23 @@
 # Everest smart contracts
 
 ## 🔗 Latest deployments
-| Network  | Contract addres |
-| ---------| --------------------- |
-| Testnet  | [0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA](https://testnet.snowtrace.io/address/0xb6Ebaec35865D3216E10e05C6838B7a1f91811FA) |
-| Mainnet  | Not deployed yet |
+**Please update these tables when you deploy a new version!**
 
-**Please update this table when you deploy a new version!**
+### Main contracts
+| Contract | Network  | Contract addres |
+| ---------| -------- | --------------- |
+| HubV1 | Kovan | Not deployed yet |
+| CollateralFundV1 | Kovan | [0xdE4E6EFcaaEaa997A77b812eCE98739948391c51](https://kovan.etherscan.io/address/0xdE4E6EFcaaEaa997A77b812eCE98739948391c51) |
+| PriceTrackerV1 | Kovan | [0x243AfF679C667ddFCa073498b9EF804320C84bEB](https://kovan.etherscan.io/address/0x243AfF679C667ddFCa073498b9EF804320C84bEB) |
+
+### Synthetic Assets contracts
+| Contract | Network  | Contract addres |
+| ---------| -------- | --------------- |
+| SyntheticAAPL | Kovan | [0x0e57567140BA8171e243c8E62edf938582135Ab3](https://kovan.etherscan.io/address/0x0e57567140BA8171e243c8E62edf938582135Ab3) |
+| SyntheticTSLA | Kovan | [0xe7d15029e5Fde6E4f61C571DF98213f34fE5D08e](https://kovan.etherscan.io/address/0xe7d15029e5Fde6E4f61C571DF98213f34fE5D08e) |
+| SyntheticMSFT | Kovan | [0x814216048E3b619C6d75908aF7F7a1Db14628F2c](https://kovan.etherscan.io/address/0x814216048E3b619C6d75908aF7F7a1Db14628F2c) |
+| SyntheticABNB | Kovan | [0x62E7cAC55C9B8D4419F79446137b673d1E94444B](https://kovan.etherscan.io/address/0x62E7cAC55C9B8D4419F79446137b673d1E94444B) |
+| SyntheticGOOG | Kovan | [0xC10Daf71FC948285a9F0FBEF301F21A4ca2de0Bb](https://kovan.etherscan.io/address/0xC10Daf71FC948285a9F0FBEF301F21A4ca2de0Bb) |
 
 ## 📌 Get started
 
