@@ -1,3 +1,6 @@
+# This worflow is composed of two jobs: hardhat and audit:
+# - The hardhat job compiles, tests and deploys the smart contracts to localhost.
+# - The audit job installs python, slither-analizer and mythril before performing static analysis on solidity files.
 name: CI Workflow
 
 on:
@@ -22,8 +25,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Hardhat CI workflow.
-  # It compiles, tests and deploys the smart contracts to localhost and fuji networks.
   hardhat:
     strategy:
       matrix:
@@ -81,9 +82,6 @@ jobs:
       SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
       COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
 
-  # Audit CI workflow.
-  # It installs python, slither-analizer and mythril before performing static analysis on solidity files.
-  # It will only run if the hardhat job succeeds.
   audit:
     runs-on: ubuntu-latest
     needs: [hardhat]
