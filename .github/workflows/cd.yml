@@ -2,12 +2,9 @@
 # It also updates the README.md table with updated addresses.
 name: CD Workflow
 
-# Only trigger when the CI workflow suceeded.
+# Configure the workflow to run manually.
 on:
-  workflow_run:
-      workflows: ["CI workflow"]
-      types:
-        - completed
+  workflow_dispatch:
 
 jobs:
   deploy-to-kovan:
