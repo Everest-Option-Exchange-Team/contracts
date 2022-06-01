@@ -29,10 +29,11 @@ Install the project's dependencies with: `$ npm i`
 Copy the sample environement file: `$ cp .env.sample .env && vi .env`
 
 Then populate it with:
-- your developer wallet private keys (`MAINNET_PRIVATE_KEY`, `FUJI_PRIVATE_KEY` and `KOVAN_PRIVATE_KEY`).
-- your [coinmarketcap](https://coinmarketcap.com/api/) api key (`COINMARKETCAP_API_KEY`).
-- your [snowtrace.io](https://snowtrace.io/myapikey) api key (`SNOWTRACE_API_KEY`).
+- your [alchemy](https://dashboard.alchemyapi.io/) api key (`ALCHEMY_API_KEY`).
 - your [alpha vantage](https://www.alphavantage.co/support/#api-key) api key (`ALPHA_VANTAGE_API_KEY`).
+- your [coinmarketcap](https://coinmarketcap.com/api/) api key (`COINMARKETCAP_API_KEY`).
+- your [etherscan.io](https://etherscan.io/myapikey) api key (`ETHERSCAN_API_KEY`).
+- your developer wallet private keys (`MAINNET_PRIVATE_KEY`, `FUJI_PRIVATE_KEY` and `KOVAN_PRIVATE_KEY`).
 
 **Your .env file should never be committed** (it is specified in the *.gitignore*)!
 
