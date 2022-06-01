@@ -1,0 +1,58 @@
+# This worflow deploys the smart contracts to the Kovan testnet network.
+# It also updates the README.md table with updated addresses.
+name: CD Workflow
+
+# Configure the workflow to run manually.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-to-kovan:
+    strategy:
+        matrix:
+          contract: ['collateral-fund', 'hub', 'price-tracker', 'synthetic-assets']
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚀 Deploy to Kovan testnet
+      run: |
+        # Define useful variables.
+        export GREEN="\033[1;32m"
+        export RED="\033[1;31m"
+        export RESET="\033[0m"
+
+        # Deploy the contract.
+        echo "> Deploying contract on Kovan testnet..."
+        export DEPLOY_CMD=$(npm run deploy-${{ matrix.contract }} -- --network kovan)
+        export CONTRACT_ADDRESS=$(echo $DEPLOY_CMD | grep -F 'to' | cut -d " " -f 5)
+        if [[ -z "$CONTRACT_ADDRESS" ]]; then
+            echo -e "${RED}> Error while deploying the contract.${RESET}"
+            exit 1
+        else
+            echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
+        fi
+
+        # Wait for 5 seconds.
+        echo -e "> Waiting 5 seconds for etherscan to add the contract to its database."
+        sleep 5
+
+        # Verify the contract on https://kovan.etherscan.io/.
+        export VERIFY_CMD=$(echo $DEPLOY_CMD | grep -F 'with' | cut -d "$" -f 2 | sed -e 's/^[ \t]*//')
+        export TIMEOUT=$(date -d "+1 min")
+        echo -e "> Verifying contract...\n"
+        until eval $VERIFY_CMD
+        do
+          echo -e "${RED}\n> The verification failed.${RESET}"
+          if [[ $(date) > $TIMEOUT ]]; then
+              echo -e "${RED}> Deadline expired (1 min)${RESET}"
+              exit 1
+          fi
+          echo -e "${RED}> Retrying in 10 seconds...\n${RESET}"
+          sleep 10
+        done
+    # TODO: Update README.md with the new value
+    env:
+      ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+      COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+      ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+      KOVAN_PRIVATE_KEY: ${{ secrets.KOVAN_PRIVATE_KEY }}
