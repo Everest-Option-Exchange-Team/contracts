@@ -7,7 +7,7 @@ on:
   push:
     paths:
       # Workflows.
-      - '.github/workflows/*.yml'
+      - '.github/workflows/ci.yml'
       # Contracts.
       - 'contracts/**.sol'
       # Scripts.
@@ -28,7 +28,7 @@ jobs:
   hardhat:
     strategy:
       matrix:
-        contract: ['collateral-fund', 'price-tracker', 'synthetic-assets']
+        contract: ['collateral-fund', 'hub', 'price-tracker', 'synthetic-assets']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -47,40 +47,6 @@ jobs:
       run: npm run test
     - name: 🏠 Deploy contract to localhost
       run: CI=false npm run deploy-${{ matrix.contract }}
-    - name: 🚀 Deploy and verify contract to fuji testnet
-      run: |
-        # Define useful variables.
-        export GREEN="\033[1;32m"
-        export RED="\033[1;31m"
-        export RESET="\033[0m"
-
-        # Deploy to fuji testnet.
-        echo "> Deploying contract on fuji testnet..."
-        export CONTRACT_ADDRESS=$(CI=true npm run deploy-${{ matrix.contract }} -- --network fuji)
-        if [[ -z "$CONTRACT_ADDRESS" ]]; then
-            echo -e "${RED}> Error while deploying the contract.${RESET}"
-            exit 1
-        else
-            echo -e "${GREEN}> Contract deployed at ${CONTRACT_ADDRESS}.${RESET}"
-        fi
-
-        # Verify contract on testnet.snowtrace.io.
-        export TIMEOUT=$(date -d "+1 min")
-        echo -e "> Verifying contract...\n"
-        until npx hardhat verify $CONTRACT_ADDRESS --network fuji
-        do
-            if [[ $(date) > $TIMEOUT ]]; then
-                echo -e "${RED}\n> Deadline expired (1 min)${RESET}"
-                exit 1
-            fi
-            echo -e "${RED}\n> Retrying in 10 seconds...\n${RESET}"
-            sleep 10
-        done
-      continue-on-error: true     
-    env:
-      FUJI_PRIVATE_KEY: ${{ secrets.FUJI_PRIVATE_KEY }}
-      SNOWTRACE_API_KEY: ${{ secrets.SNOWTRACE_API_KEY }}
-      COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
 
   audit:
     runs-on: ubuntu-latest
